@@ -134,6 +134,7 @@
     <script>
         var fb={apiKey:"AIzaSyDhCFNTSf9ti3Hbz7Z8FhpCE-J3oetYX7o",authDomain:"quiniela-2026-de452.firebaseapp.com",databaseURL:"https://quiniela-2026-de452-default-rtdb.firebaseio.com",projectId:"quiniela-2026-de452",storageBucket:"quiniela-2026-de452.firebasestorage.app",messagingSenderId:"285249629571",appId:"1:285249629571:web:1bed6ea303243d5621dab6"};
         firebase.initializeApp(fb);var db=firebase.database();
+        var claveAdmin = "1175"; // Clave de administrador
 
         function playMenuSound(){try{var a=new(window.AudioContext||window.webkitAudioContext)();var o=a.createOscillator();var g=a.createGain();o.connect(g);g.connect(a.destination);o.type='square';o.frequency.setValueAtTime(800,a.currentTime);o.frequency.setValueAtTime(1000,a.currentTime+0.04);o.frequency.setValueAtTime(1200,a.currentTime+0.08);g.gain.setValueAtTime(0.12,a.currentTime);g.gain.exponentialRampToValueAtTime(0.001,a.currentTime+0.12);o.start(a.currentTime);o.stop(a.currentTime+0.12)}catch(e){}}
         function playWhistleSound(){try{var a=new(window.AudioContext||window.webkitAudioContext)();var o1=a.createOscillator();var o2=a.createOscillator();var g=a.createGain();o1.connect(g);o2.connect(g);g.connect(a.destination);o1.type='sine';o2.type='sine';o1.frequency.setValueAtTime(2000,a.currentTime);o1.frequency.linearRampToValueAtTime(2500,a.currentTime+0.1);o1.frequency.linearRampToValueAtTime(2000,a.currentTime+0.2);o2.frequency.setValueAtTime(2100,a.currentTime);o2.frequency.linearRampToValueAtTime(2600,a.currentTime+0.1);o2.frequency.linearRampToValueAtTime(2100,a.currentTime+0.2);g.gain.setValueAtTime(0.15,a.currentTime);g.gain.linearRampToValueAtTime(0.2,a.currentTime+0.1);g.gain.exponentialRampToValueAtTime(0.001,a.currentTime+0.4);o1.start(a.currentTime);o1.stop(a.currentTime+0.4);o2.start(a.currentTime);o2.stop(a.currentTime+0.4)}catch(e){}}
@@ -190,7 +191,18 @@
         h+='</div></div>';ct.innerHTML=h;}
         function guardar(){toast('Guardado en Firebase');}
         function cargar(){sync();toast('Sincronizado');}
-        function reiniciar(){init();db.ref('od14').remove();db.ref('pd14').remove();render();toast('Reiniciado');}
+        function reiniciar() {
+            var intento = prompt("Ingresa la clave de administrador para reiniciar:");
+            if (intento === claveAdmin) {
+                init();
+                db.ref('od14').remove();
+                db.ref('pd14').remove();
+                render();
+                toast('Reiniciado');
+            } else if (intento !== null) {
+                toast('Clave incorrecta');
+            }
+        }
         function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},2000);}
         document.getElementById('playerTabs').addEventListener('click',function(e){if(e.target.classList.contains('tab')){cp=parseInt(e.target.dataset.p);var tabs=document.querySelectorAll('#playerTabs .tab');for(var i=0;i<tabs.length;i++)tabs[i].classList.remove('active');e.target.classList.add('active');if(cs==='predgrupos')renderP();renderL();}});
         document.querySelector('.section-tabs').addEventListener('click',function(e){if(e.target.classList.contains('section-tab')){cs=e.target.dataset.s;var tabs=document.querySelectorAll('.section-tab');for(var i=0;i<tabs.length;i++)tabs[i].classList.remove('active');e.target.classList.add('active');var contents=document.querySelectorAll('.content');for(var i=0;i<contents.length;i++)contents[i].classList.remove('active');document.getElementById('sec-'+cs).classList.add('active');if(cs==='predgrupos')renderP();if(cs==='leader')renderL();updateWM();}});
