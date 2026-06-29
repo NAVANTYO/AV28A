@@ -159,7 +159,7 @@
     <script>
         var fb={apiKey:"AIzaSyDhCFNTSf9ti3Hbz7Z8FhpCE-J3oetYX7o",authDomain:"quiniela-2026-de452.firebaseapp.com",databaseURL:"https://quiniela-2026-de452-default-rtdb.firebaseio.com",projectId:"quiniela-2026-de452",storageBucket:"quiniela-2026-de452.firebasestorage.app",messagingSenderId:"285249629571",appId:"1:285249629571:web:1bed6ea303243d5621dab6"};
         firebase.initializeApp(fb);var db=firebase.database();
-        var claveAdmin = "1175"; // Clave de administrador para Grupos Oficial y Reiniciar
+        var claveAdmin = "1175";
 
         function playMenuSound(){try{var a=new(window.AudioContext||window.webkitAudioContext)();var o=a.createOscillator();var g=a.createGain();o.connect(g);g.connect(a.destination);o.type='square';o.frequency.setValueAtTime(800,a.currentTime);o.frequency.setValueAtTime(1000,a.currentTime+0.04);o.frequency.setValueAtTime(1200,a.currentTime+0.08);g.gain.setValueAtTime(0.12,a.currentTime);g.gain.exponentialRampToValueAtTime(0.001,a.currentTime+0.12);o.start(a.currentTime);o.stop(a.currentTime+0.12)}catch(e){}}
         function playWhistleSound(){try{var a=new(window.AudioContext||window.webkitAudioContext)();var o1=a.createOscillator();var o2=a.createOscillator();var g=a.createGain();o1.connect(g);o2.connect(g);g.connect(a.destination);o1.type='sine';o2.type='sine';o1.frequency.setValueAtTime(2000,a.currentTime);o1.frequency.linearRampToValueAtTime(2500,a.currentTime+0.1);o1.frequency.linearRampToValueAtTime(2000,a.currentTime+0.2);o2.frequency.setValueAtTime(2100,a.currentTime);o2.frequency.linearRampToValueAtTime(2600,a.currentTime+0.1);o2.frequency.linearRampToValueAtTime(2100,a.currentTime+0.2);g.gain.setValueAtTime(0.15,a.currentTime);g.gain.linearRampToValueAtTime(0.2,a.currentTime+0.1);g.gain.exponentialRampToValueAtTime(0.001,a.currentTime+0.4);o1.start(a.currentTime);o1.stop(a.currentTime+0.4);o2.start(a.currentTime);o2.stop(a.currentTime+0.4)}catch(e){}}
@@ -170,39 +170,9 @@
         function gf(p){return'https://flagcdn.com/w320/'+(cc[p]||'xx')+'.png';}
         var grupos=[{nombre:'Grupo A',eq:['Mexico','Sudafrica','Corea del Sur','Republica Checa']},{nombre:'Grupo B',eq:['Canada','Bosnia y H.','Qatar','Suiza']},{nombre:'Grupo C',eq:['Brasil','Marruecos','Haiti','Escocia']},{nombre:'Grupo D',eq:['USA','Paraguay','Australia','Turquia']},{nombre:'Grupo E',eq:['Alemania','Curacao','Costa de Marfil','Ecuador']},{nombre:'Grupo F',eq:['Paises Bajos','Japon','Suecia','Tunez']},{nombre:'Grupo G',eq:['Belgica','Egipto','Iran','Nueva Zelanda']},{nombre:'Grupo H',eq:['Espana','Cabo Verde','Arabia Saudita','Uruguay']},{nombre:'Grupo I',eq:['Francia','Senegal','Irak','Noruega']},{nombre:'Grupo J',eq:['Argentina','Argelia','Austria','Jordania']},{nombre:'Grupo K',eq:['Portugal','Congo DR','Uzbekistan','Colombia']},{nombre:'Grupo L',eq:['Inglaterra','Croacia','Ghana','Panama']}];
         var pg=[[0,1],[0,2],[0,3],[1,2],[1,3],[2,3]];var od={},pd={},eo={},pe={};
-        function initElimData(){
-            db.ref('eo15').once('value',function(snap){
-                if(!snap.val()){
-                    var defaultEo = {
-                        d: [
-                            ['1','0'], // Canadá 1-0 Sudáfrica
-                            ['',''], // Alemania vs Paraguay
-                            ['',''], // Países Bajos vs Marruecos
-                            ['',''], // Francia vs Suecia
-                            ['',''], // Portugal vs Croacia
-                            ['',''], // España vs Austria
-                            ['',''], // Estados Unidos vs Bosnia
-                            ['',''], // Bélgica vs Senegal
-                            ['2','1'], // Brasil 2-1 Japón
-                            ['',''], // Costa de Marfil vs Noruega
-                            ['',''], // México vs Ecuador
-                            ['',''], // Inglaterra vs RD Congo
-                            ['',''], // Argentina vs Cabo Verde
-                            ['',''], // Australia vs Egipto
-                            ['',''], // Suiza vs Argelia
-                            ['','']  // Colombia vs Ghana
-                        ],
-                        o: [['',''],['',''],['',''],['',''],['',''],['',''],['',''],['','']],
-                        c: [['',''],['',''],['',''],['','']],
-                        s: [['',''],['','']],
-                        f: ['',''],
-                        t: ['','']
-                    };
-                    db.ref('eo15').set(defaultEo);
-                }
-            });
-        }
-        function init(){od={};pd={};eo={d:[],o:[],c:[],s:[],f:['',''],t:['','']};pe={};for(var g=0;g<12;g++){od[g]=[];for(var m=0;m<6;m++)od[g][m]=['',''];}for(var p=0;p<6;p++){pd[p]={};for(var g=0;g<12;g++){pd[p][g]=[];for(var m=0;m<6;m++)pd[p][g][m]=['',''];}pe[p]={d:[],o:[],c:[],s:[],f:['',''],t:['','']};for(var i=0;i<16;i++)pe[p].d.push(['','']);for(var i=0;i<8;i++)pe[p].o.push(['','']);for(var i=0;i<4;i++)pe[p].c.push(['','']);for(var i=0;i<2;i++)pe[p].s.push(['','']);}for(var i=0;i<16;i++)eo.d.push(['','']);for(var i=0;i<8;i++)eo.o.push(['','']);for(var i=0;i<4;i++)eo.c.push(['','']);for(var i=0;i<2;i++)eo.s.push(['','']);initElimData();}init();
+        
+        function init(){od={};pd={};eo={d:[],o:[],c:[],s:[],f:['',''],t:['','']};pe={};for(var g=0;g<12;g++){od[g]=[];for(var m=0;m<6;m++)od[g][m]=['',''];}for(var p=0;p<6;p++){pd[p]={};for(var g=0;g<12;g++){pd[p][g]=[];for(var m=0;m<6;m++)pd[p][g][m]=['',''];}pe[p]={d:[],o:[],c:[],s:[],f:['',''],t:['','']};for(var i=0;i<16;i++)pe[p].d.push(['','']);for(var i=0;i<8;i++)pe[p].o.push(['','']);for(var i=0;i<4;i++)pe[p].c.push(['','']);for(var i=0;i<2;i++)pe[p].s.push(['','']);}for(var i=0;i<16;i++)eo.d.push(['','']);for(var i=0;i<8;i++)eo.o.push(['','']);for(var i=0;i<4;i++)eo.c.push(['','']);for(var i=0;i<2;i++)eo.s.push(['','']);}init();
+        
         function sync(){db.ref('od14').on('value',function(s){var d=s.val();if(d){for(var g=0;g<12;g++){if(!od[g])od[g]=[];for(var m=0;m<6;m++){if(!od[g][m])od[g][m]=['',''];if(d[g]&&d[g][m]){od[g][m][0]=d[g][m][0]||'';od[g][m][1]=d[g][m][1]||'';}}}}render();});db.ref('pd14').on('value',function(s){var d=s.val();if(d){for(var p=0;p<6;p++){if(!pd[p])pd[p]={};for(var g=0;g<12;g++){if(!pd[p][g])pd[p][g]=[];for(var m=0;m<6;m++){if(!pd[p][g][m])pd[p][g][m]=['',''];if(d[p]&&d[p][g]&&d[p][g][m]){pd[p][g][m][0]=d[p][g][m][0]||'';pd[p][g][m][1]=d[p][g][m][1]||'';}}}}}render();});db.ref('eo15').on('value',function(s){var d=s.val();if(d){['d','o','c','s'].forEach(function(r){if(d[r]){d[r].forEach(function(pt,i){if(!eo[r])eo[r]=[];if(!eo[r][i])eo[r][i]=['',''];eo[r][i][0]=pt[0]||'';eo[r][i][1]=pt[1]||'';});}});if(d.f)eo.f=[d.f[0]||'',d.f[1]||''];if(d.t)eo.t=[d.t[0]||'',d.t[1]||''];render();}});db.ref('pe15').on('value',function(s){var d=s.val();if(d){for(var p=0;p<6;p++){if(!pe[p])pe[p]={d:[],o:[],c:[],s:[],f:['',''],t:['','']};if(d[p]){['d','o','c','s'].forEach(function(r){if(d[p][r]){if(!pe[p][r])pe[p][r]=[];d[p][r].forEach(function(pt,i){if(!pe[p][r][i])pe[p][r][i]=['',''];pe[p][r][i][0]=pt[0]||'';pe[p][r][i][1]=pt[1]||'';});}});if(d[p].f)pe[p].f=[d[p].f[0]||'',d[p].f[1]||''];if(d[p].t)pe[p].t=[d[p].t[0]||'',d[p].t[1]||''];}}}render();}});}
         function so(g,m){db.ref('od14/'+g+'/'+m).set({0:od[g][m][0],1:od[g][m][1]});}
         function sp(p,g,m){db.ref('pd14/'+p+'/'+g+'/'+m).set({0:pd[p][g][m][0],1:pd[p][g][m][1]});}
@@ -224,49 +194,73 @@
             ['Argentina','Cabo Verde'],['Australia','Egipto'],['Suiza','Argelia'],['Colombia','Ghana']
         ];
         function obtenerGanador(marcador){var gl=parseInt(marcador[0]),gv=parseInt(marcador[1]);if(isNaN(gl)||isNaN(gv))return null;if(gl>gv)return'local';if(gv>gl)return'visitante';return'empate';}
+        
+        function inicializarEliminatorias(){
+            // Solo inicializa si los datos no existen o están incompletos
+            if(!eo.d || eo.d.length < 16 || (eo.d[0][0] === '' && eo.d[0][1] === '' && eo.d[8][0] === '' && eo.d[8][1] === '')){
+                var defaultEo = {
+                    d: [
+                        ['1','0'],['',''],['',''],['',''],['',''],['',''],['',''],['',''],
+                        ['2','1'],['',''],['',''],['',''],['',''],['',''],['',''],['','']
+                    ],
+                    o: [['',''],['',''],['',''],['',''],['',''],['',''],['',''],['','']],
+                    c: [['',''],['',''],['',''],['','']],
+                    s: [['',''],['','']],
+                    f: ['',''],
+                    t: ['','']
+                };
+                eo = defaultEo;
+                db.ref('eo15').set(eo);
+            }
+        }
+
         function renderElim(){
             var wO=document.getElementById('bracketOficialBox'),wP=document.getElementById('bracketPredBox');
             if(!wO||!wP)return;
+            
+            // Asegurar que los datos estén listos
+            inicializarEliminatorias();
+            
+            if(!eo.d || eo.d.length < 16){
+                wO.innerHTML = '<div style="text-align:center;padding:20px;color:var(--gold);">⏳ Preparando datos de eliminatorias...</div>';
+                return;
+            }
 
             // === BRACKET OFICIAL ===
             var hO='';
             try {
-                if(!eo.d || eo.d.length<16){
-                    hO='<div style="text-align:center;padding:20px;color:var(--gold);">⏳ Cargando datos de eliminatorias...<br><small>Si esto persiste, verifica que los resultados de la fase de grupos estén completos.</small></div>';
-                } else {
-                    function renderFaseOficial(titulo,ronda,num,equipos){
-                        hO+='<div class="elim-ronda"><div class="elim-ronda-title">'+titulo+'</div>';
-                        for(var i=0;i<num;i++){
-                            var m=eo[ronda]&&eo[ronda][i]?eo[ronda][i]:['',''];
-                            var l=equipos?equipos[i][0]:'Local',v=equipos?equipos[i][1]:'Visitante';
-                            hO+='<div class="partido"><span class="pteam l"><img class="flag-s" src="'+gf(l)+'" alt="" onerror="this.style.display=\'none\'">'+l+'</span><input type="number" class="inp of" min="0" max="99" value="'+m[0]+'" data-r="'+ronda+'" data-i="'+i+'" data-t="0" placeholder="-"><span class="pvs">vs</span><input type="number" class="inp of" min="0" max="99" value="'+m[1]+'" data-r="'+ronda+'" data-i="'+i+'" data-t="1" placeholder="-"><span class="pteam"><img class="flag-s" src="'+gf(v)+'" alt="" onerror="this.style.display=\'none\'">'+v+'</span></div>';
-                        }
-                        hO+='</div>';
-                    }
-                    renderFaseOficial('Dieciseisavos','d',16,bracketEquipos);
-                    hO+='<div class="elim-ronda"><div class="elim-ronda-title">Octavos</div>';
-                    for(var i=0;i<8;i++){
-                        var m=eo.o&&eo.o[i]?eo.o[i]:['',''];
-                        var p1=eo.d[i*2],p2=eo.d[i*2+1];
-                        var eq1='Ganador '+(i*2+1),eq2='Ganador '+(i*2+2);
-                        if(p1&&p1[0]!==''&&p1[1]!==''){var g=obtenerGanador(p1);if(g==='local')eq1=bracketEquipos[i*2][0];else if(g==='visitante')eq1=bracketEquipos[i*2][1];}
-                        if(p2&&p2[0]!==''&&p2[1]!==''){var g=obtenerGanador(p2);if(g==='local')eq2=bracketEquipos[i*2+1][0];else if(g==='visitante')eq2=bracketEquipos[i*2+1][1];}
-                        hO+='<div class="partido"><span class="pteam l">'+eq1+'</span><input type="number" class="inp of" value="'+m[0]+'" data-r="o" data-i="'+i+'" data-t="0" placeholder="-"><span class="pvs">vs</span><input type="number" class="inp of" value="'+m[1]+'" data-r="o" data-i="'+i+'" data-t="1" placeholder="-"><span class="pteam">'+eq2+'</span></div>';
+                function renderFaseOficial(titulo,ronda,num,equipos){
+                    hO+='<div class="elim-ronda"><div class="elim-ronda-title">'+titulo+'</div>';
+                    for(var i=0;i<num;i++){
+                        var m=eo[ronda]&&eo[ronda][i]?eo[ronda][i]:['',''];
+                        var l=equipos?equipos[i][0]:'Local',v=equipos?equipos[i][1]:'Visitante';
+                        hO+='<div class="partido"><span class="pteam l"><img class="flag-s" src="'+gf(l)+'" alt="" onerror="this.style.display=\'none\'">'+l+'</span><input type="number" class="inp of" min="0" max="99" value="'+m[0]+'" data-r="'+ronda+'" data-i="'+i+'" data-t="0" placeholder="-"><span class="pvs">vs</span><input type="number" class="inp of" min="0" max="99" value="'+m[1]+'" data-r="'+ronda+'" data-i="'+i+'" data-t="1" placeholder="-"><span class="pteam"><img class="flag-s" src="'+gf(v)+'" alt="" onerror="this.style.display=\'none\'">'+v+'</span></div>';
                     }
                     hO+='</div>';
-                    ['c','s'].forEach(function(r,idx){
-                        var titulo=idx===0?'Cuartos':'Semifinales';
-                        var num=idx===0?4:2;
-                        hO+='<div class="elim-ronda"><div class="elim-ronda-title">'+titulo+'</div>';
-                        for(var i=0;i<num;i++){
-                            var m=eo[r]&&eo[r][i]?eo[r][i]:['',''];
-                            hO+='<div class="partido"><span class="pteam l">Local</span><input type="number" class="inp of" value="'+m[0]+'" data-r="'+r+'" data-i="'+i+'" data-t="0" placeholder="-"><span class="pvs">vs</span><input type="number" class="inp of" value="'+m[1]+'" data-r="'+r+'" data-i="'+i+'" data-t="1" placeholder="-"><span class="pteam">Visitante</span></div>';
-                        }
-                        hO+='</div>';
-                    });
-                    hO+='<div class="elim-ronda"><div class="elim-ronda-title">Final</div><div class="partido"><span class="pteam l">Finalista 1</span><input type="number" class="inp of" value="'+(eo.f?eo.f[0]:'')+'" data-r="f" data-i="0" data-t="0" placeholder="-"><span class="pvs">vs</span><input type="number" class="inp of" value="'+(eo.f?eo.f[1]:'')+'" data-r="f" data-i="0" data-t="1" placeholder="-"><span class="pteam">Finalista 2</span></div></div>';
-                    hO+='<div class="elim-ronda"><div class="elim-ronda-title">3er Lugar</div><div class="partido"><span class="pteam l">Perdedor S1</span><input type="number" class="inp of" value="'+(eo.t?eo.t[0]:'')+'" data-r="t" data-i="0" data-t="0" placeholder="-"><span class="pvs">vs</span><input type="number" class="inp of" value="'+(eo.t?eo.t[1]:'')+'" data-r="t" data-i="0" data-t="1" placeholder="-"><span class="pteam">Perdedor S2</span></div></div>';
                 }
+                renderFaseOficial('Dieciseisavos','d',16,bracketEquipos);
+                hO+='<div class="elim-ronda"><div class="elim-ronda-title">Octavos</div>';
+                for(var i=0;i<8;i++){
+                    var m=eo.o&&eo.o[i]?eo.o[i]:['',''];
+                    var p1=eo.d[i*2],p2=eo.d[i*2+1];
+                    var eq1='Ganador '+(i*2+1),eq2='Ganador '+(i*2+2);
+                    if(p1&&p1[0]!==''&&p1[1]!==''){var g=obtenerGanador(p1);if(g==='local')eq1=bracketEquipos[i*2][0];else if(g==='visitante')eq1=bracketEquipos[i*2][1];}
+                    if(p2&&p2[0]!==''&&p2[1]!==''){var g=obtenerGanador(p2);if(g==='local')eq2=bracketEquipos[i*2+1][0];else if(g==='visitante')eq2=bracketEquipos[i*2+1][1];}
+                    hO+='<div class="partido"><span class="pteam l">'+eq1+'</span><input type="number" class="inp of" value="'+m[0]+'" data-r="o" data-i="'+i+'" data-t="0" placeholder="-"><span class="pvs">vs</span><input type="number" class="inp of" value="'+m[1]+'" data-r="o" data-i="'+i+'" data-t="1" placeholder="-"><span class="pteam">'+eq2+'</span></div>';
+                }
+                hO+='</div>';
+                ['c','s'].forEach(function(r,idx){
+                    var titulo=idx===0?'Cuartos':'Semifinales';
+                    var num=idx===0?4:2;
+                    hO+='<div class="elim-ronda"><div class="elim-ronda-title">'+titulo+'</div>';
+                    for(var i=0;i<num;i++){
+                        var m=eo[r]&&eo[r][i]?eo[r][i]:['',''];
+                        hO+='<div class="partido"><span class="pteam l">Local</span><input type="number" class="inp of" value="'+m[0]+'" data-r="'+r+'" data-i="'+i+'" data-t="0" placeholder="-"><span class="pvs">vs</span><input type="number" class="inp of" value="'+m[1]+'" data-r="'+r+'" data-i="'+i+'" data-t="1" placeholder="-"><span class="pteam">Visitante</span></div>';
+                    }
+                    hO+='</div>';
+                });
+                hO+='<div class="elim-ronda"><div class="elim-ronda-title">Final</div><div class="partido"><span class="pteam l">Finalista 1</span><input type="number" class="inp of" value="'+(eo.f?eo.f[0]:'')+'" data-r="f" data-i="0" data-t="0" placeholder="-"><span class="pvs">vs</span><input type="number" class="inp of" value="'+(eo.f?eo.f[1]:'')+'" data-r="f" data-i="0" data-t="1" placeholder="-"><span class="pteam">Finalista 2</span></div></div>';
+                hO+='<div class="elim-ronda"><div class="elim-ronda-title">3er Lugar</div><div class="partido"><span class="pteam l">Perdedor S1</span><input type="number" class="inp of" value="'+(eo.t?eo.t[0]:'')+'" data-r="t" data-i="0" data-t="0" placeholder="-"><span class="pvs">vs</span><input type="number" class="inp of" value="'+(eo.t?eo.t[1]:'')+'" data-r="t" data-i="0" data-t="1" placeholder="-"><span class="pteam">Perdedor S2</span></div></div>';
             } catch(e) {
                 hO='<div style="text-align:center;padding:20px;color:red;">⚠️ Error al cargar el bracket: '+e.message+'</div>';
             }
@@ -291,6 +285,7 @@
             wP.innerHTML=hP;
             wP.querySelectorAll('.inp').forEach(function(inp){inp.addEventListener('input',function(){if(this.classList.contains('blocked'))return;var r=this.dataset.r,i=parseInt(this.dataset.i),t=parseInt(this.dataset.t);if(!pe[cp][r])pe[cp][r]=[];if(!pe[cp][r][i])pe[cp][r][i]=['',''];pe[cp][r][i][t]=this.value;spe(cp,r,i);renderL();var sy=window.scrollY;setTimeout(function(){window.scrollTo(0,sy);},10);});});
         }
+
         function renderL(){var ct=document.getElementById('leaderBox');if(!ct)return;var pts=[];for(var pi=0;pi<6;pi++){var puntos=0;
             for(var g=0;g<12;g++){for(var m=0;m<6;m++){var of=(od[g]&&od[g][m])?od[g][m]:['',''];var pr=(pd[pi]&&pd[pi][g]&&pd[pi][g][m])?pd[pi][g][m]:['',''];var gol=parseInt(of[0]),gov=parseInt(of[1]),gpl=parseInt(pr[0]),gpv=parseInt(pr[1]);if(!isNaN(gol)&&!isNaN(gov)&&!isNaN(gpl)&&!isNaN(gpv)){if(gpl===gol&&gpv===gov)puntos+=6;else if((gol>gov&&gpl>gpv)||(gol<gov&&gpl<gpv)||(gol===gov&&gpl===gpv))puntos+=3;}}}
             var rondas=['d','o','c','s'];for(var ri=0;ri<rondas.length;ri++){var r=rondas[ri];var num=(r==='d'?16:r==='o'?8:r==='c'?4:2);for(var i=0;i<num;i++){var of=(eo[r]&&eo[r][i])?eo[r][i]:['',''];var pr=(pe[pi]&&pe[pi][r]&&pe[pi][r][i])?pe[pi][r][i]:['',''];var gol=parseInt(of[0]),gov=parseInt(of[1]),gpl=parseInt(pr[0]),gpv=parseInt(pr[1]);if(!isNaN(gol)&&!isNaN(gov)&&!isNaN(gpl)&&!isNaN(gpv)){if(gpl===gol&&gpv===gov)puntos+=6;else if((gol>gov&&gpl>gpv)||(gol<gov&&gpl<gpv)||(gol===gov&&gpl===gpv))puntos+=3;}}}
@@ -308,7 +303,6 @@
         document.querySelector('.section-tabs').addEventListener('click',function(e){
             if(e.target.classList.contains('section-tab')){
                 var nuevaSeccion=e.target.dataset.s;
-                // Solo pedir clave para Grupos Oficial (no para Eliminatorias)
                 if(nuevaSeccion==='grupos'){var intento=prompt("Ingresa la clave de administrador para acceder a Grupos Oficial:");if(intento!==claveAdmin){if(intento!==null)toast('Clave incorrecta');return;}}
                 cs=nuevaSeccion;
                 var tabs=document.querySelectorAll('.section-tab');for(var i=0;i<tabs.length;i++)tabs[i].classList.remove('active');e.target.classList.add('active');
