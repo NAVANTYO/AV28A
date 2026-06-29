@@ -227,49 +227,60 @@
         function renderElim(){
             var wO=document.getElementById('bracketOficialBox'),wP=document.getElementById('bracketPredBox');
             if(!wO||!wP)return;
-            // Bracket Oficial (sin clave)
+
+            // === BRACKET OFICIAL ===
             var hO='';
-            function renderFaseOficial(titulo,ronda,num,equipos){
-                hO+='<div class="elim-ronda"><div class="elim-ronda-title">'+titulo+'</div>';
-                for(var i=0;i<num;i++){
-                    var m=eo[ronda]&&eo[ronda][i]?eo[ronda][i]:['',''];
-                    var l=equipos?equipos[i][0]:'Local',v=equipos?equipos[i][1]:'Visitante';
-                    hO+='<div class="partido"><span class="pteam l"><img class="flag-s" src="'+gf(l)+'" alt="" onerror="this.style.display=\'none\'">'+l+'</span><input type="number" class="inp of" min="0" max="99" value="'+m[0]+'" data-r="'+ronda+'" data-i="'+i+'" data-t="0" placeholder="-"><span class="pvs">vs</span><input type="number" class="inp of" min="0" max="99" value="'+m[1]+'" data-r="'+ronda+'" data-i="'+i+'" data-t="1" placeholder="-"><span class="pteam"><img class="flag-s" src="'+gf(v)+'" alt="" onerror="this.style.display=\'none\'">'+v+'</span></div>';
+            try {
+                if(!eo.d || eo.d.length<16){
+                    hO='<div style="text-align:center;padding:20px;color:var(--gold);">⏳ Cargando datos de eliminatorias...<br><small>Si esto persiste, verifica que los resultados de la fase de grupos estén completos.</small></div>';
+                } else {
+                    function renderFaseOficial(titulo,ronda,num,equipos){
+                        hO+='<div class="elim-ronda"><div class="elim-ronda-title">'+titulo+'</div>';
+                        for(var i=0;i<num;i++){
+                            var m=eo[ronda]&&eo[ronda][i]?eo[ronda][i]:['',''];
+                            var l=equipos?equipos[i][0]:'Local',v=equipos?equipos[i][1]:'Visitante';
+                            hO+='<div class="partido"><span class="pteam l"><img class="flag-s" src="'+gf(l)+'" alt="" onerror="this.style.display=\'none\'">'+l+'</span><input type="number" class="inp of" min="0" max="99" value="'+m[0]+'" data-r="'+ronda+'" data-i="'+i+'" data-t="0" placeholder="-"><span class="pvs">vs</span><input type="number" class="inp of" min="0" max="99" value="'+m[1]+'" data-r="'+ronda+'" data-i="'+i+'" data-t="1" placeholder="-"><span class="pteam"><img class="flag-s" src="'+gf(v)+'" alt="" onerror="this.style.display=\'none\'">'+v+'</span></div>';
+                        }
+                        hO+='</div>';
+                    }
+                    renderFaseOficial('Dieciseisavos','d',16,bracketEquipos);
+                    hO+='<div class="elim-ronda"><div class="elim-ronda-title">Octavos</div>';
+                    for(var i=0;i<8;i++){
+                        var m=eo.o&&eo.o[i]?eo.o[i]:['',''];
+                        var p1=eo.d[i*2],p2=eo.d[i*2+1];
+                        var eq1='Ganador '+(i*2+1),eq2='Ganador '+(i*2+2);
+                        if(p1&&p1[0]!==''&&p1[1]!==''){var g=obtenerGanador(p1);if(g==='local')eq1=bracketEquipos[i*2][0];else if(g==='visitante')eq1=bracketEquipos[i*2][1];}
+                        if(p2&&p2[0]!==''&&p2[1]!==''){var g=obtenerGanador(p2);if(g==='local')eq2=bracketEquipos[i*2+1][0];else if(g==='visitante')eq2=bracketEquipos[i*2+1][1];}
+                        hO+='<div class="partido"><span class="pteam l">'+eq1+'</span><input type="number" class="inp of" value="'+m[0]+'" data-r="o" data-i="'+i+'" data-t="0" placeholder="-"><span class="pvs">vs</span><input type="number" class="inp of" value="'+m[1]+'" data-r="o" data-i="'+i+'" data-t="1" placeholder="-"><span class="pteam">'+eq2+'</span></div>';
+                    }
+                    hO+='</div>';
+                    ['c','s'].forEach(function(r,idx){
+                        var titulo=idx===0?'Cuartos':'Semifinales';
+                        var num=idx===0?4:2;
+                        hO+='<div class="elim-ronda"><div class="elim-ronda-title">'+titulo+'</div>';
+                        for(var i=0;i<num;i++){
+                            var m=eo[r]&&eo[r][i]?eo[r][i]:['',''];
+                            hO+='<div class="partido"><span class="pteam l">Local</span><input type="number" class="inp of" value="'+m[0]+'" data-r="'+r+'" data-i="'+i+'" data-t="0" placeholder="-"><span class="pvs">vs</span><input type="number" class="inp of" value="'+m[1]+'" data-r="'+r+'" data-i="'+i+'" data-t="1" placeholder="-"><span class="pteam">Visitante</span></div>';
+                        }
+                        hO+='</div>';
+                    });
+                    hO+='<div class="elim-ronda"><div class="elim-ronda-title">Final</div><div class="partido"><span class="pteam l">Finalista 1</span><input type="number" class="inp of" value="'+(eo.f?eo.f[0]:'')+'" data-r="f" data-i="0" data-t="0" placeholder="-"><span class="pvs">vs</span><input type="number" class="inp of" value="'+(eo.f?eo.f[1]:'')+'" data-r="f" data-i="0" data-t="1" placeholder="-"><span class="pteam">Finalista 2</span></div></div>';
+                    hO+='<div class="elim-ronda"><div class="elim-ronda-title">3er Lugar</div><div class="partido"><span class="pteam l">Perdedor S1</span><input type="number" class="inp of" value="'+(eo.t?eo.t[0]:'')+'" data-r="t" data-i="0" data-t="0" placeholder="-"><span class="pvs">vs</span><input type="number" class="inp of" value="'+(eo.t?eo.t[1]:'')+'" data-r="t" data-i="0" data-t="1" placeholder="-"><span class="pteam">Perdedor S2</span></div></div>';
                 }
-                hO+='</div>';
+            } catch(e) {
+                hO='<div style="text-align:center;padding:20px;color:red;">⚠️ Error al cargar el bracket: '+e.message+'</div>';
             }
-            renderFaseOficial('Dieciseisavos','d',16,bracketEquipos);
-            hO+='<div class="elim-ronda"><div class="elim-ronda-title">Octavos</div>';
-            for(var i=0;i<8;i++){
-                var m=eo.o&&eo.o[i]?eo.o[i]:['',''];
-                var p1=eo.d[i*2],p2=eo.d[i*2+1];
-                var eq1='Ganador '+(i*2+1),eq2='Ganador '+(i*2+2);
-                if(p1&&p1[0]!==''&&p1[1]!==''){var g=obtenerGanador(p1);if(g==='local')eq1=bracketEquipos[i*2][0];else if(g==='visitante')eq1=bracketEquipos[i*2][1];}
-                if(p2&&p2[0]!==''&&p2[1]!==''){var g=obtenerGanador(p2);if(g==='local')eq2=bracketEquipos[i*2+1][0];else if(g==='visitante')eq2=bracketEquipos[i*2+1][1];}
-                hO+='<div class="partido"><span class="pteam l">'+eq1+'</span><input type="number" class="inp of" value="'+m[0]+'" data-r="o" data-i="'+i+'" data-t="0" placeholder="-"><span class="pvs">vs</span><input type="number" class="inp of" value="'+m[1]+'" data-r="o" data-i="'+i+'" data-t="1" placeholder="-"><span class="pteam">'+eq2+'</span></div>';
-            }
-            hO+='</div>';
-            ['c','s'].forEach(function(r,idx){
-                var titulo=idx===0?'Cuartos':'Semifinales';
-                var num=idx===0?4:2;
-                hO+='<div class="elim-ronda"><div class="elim-ronda-title">'+titulo+'</div>';
-                for(var i=0;i<num;i++){
-                    var m=eo[r]&&eo[r][i]?eo[r][i]:['',''];
-                    hO+='<div class="partido"><span class="pteam l">Local</span><input type="number" class="inp of" value="'+m[0]+'" data-r="'+r+'" data-i="'+i+'" data-t="0" placeholder="-"><span class="pvs">vs</span><input type="number" class="inp of" value="'+m[1]+'" data-r="'+r+'" data-i="'+i+'" data-t="1" placeholder="-"><span class="pteam">Visitante</span></div>';
-                }
-                hO+='</div>';
-            });
-            hO+='<div class="elim-ronda"><div class="elim-ronda-title">Final</div><div class="partido"><span class="pteam l">Finalista 1</span><input type="number" class="inp of" value="'+(eo.f?eo.f[0]:'')+'" data-r="f" data-i="0" data-t="0" placeholder="-"><span class="pvs">vs</span><input type="number" class="inp of" value="'+(eo.f?eo.f[1]:'')+'" data-r="f" data-i="0" data-t="1" placeholder="-"><span class="pteam">Finalista 2</span></div></div>';
-            hO+='<div class="elim-ronda"><div class="elim-ronda-title">3er Lugar</div><div class="partido"><span class="pteam l">Perdedor S1</span><input type="number" class="inp of" value="'+(eo.t?eo.t[0]:'')+'" data-r="t" data-i="0" data-t="0" placeholder="-"><span class="pvs">vs</span><input type="number" class="inp of" value="'+(eo.t?eo.t[1]:'')+'" data-r="t" data-i="0" data-t="1" placeholder="-"><span class="pteam">Perdedor S2</span></div></div>';
             wO.innerHTML=hO;
             wO.querySelectorAll('.inp').forEach(function(inp){inp.addEventListener('input',function(){var r=this.dataset.r,i=parseInt(this.dataset.i),t=parseInt(this.dataset.t);if(!eo[r])eo[r]=[];if(!eo[r][i])eo[r][i]=['',''];eo[r][i][t]=this.value;se(r,i);});});
 
-            // Predicciones
+            // === PREDICCIONES ===
             var hP='';
-            for(var pi=0;pi<6;pi++){if(pi!==cp)continue;
+            if(!pe[cp] || !pe[cp].d || pe[cp].d.length<16){
+                hP='<div style="text-align:center;padding:20px;color:var(--gold);">Selecciona un jugador para ver sus predicciones de eliminatorias.</div>';
+            } else {
                 hP+='<div class="elim-ronda"><div class="elim-ronda-title">Dieciseisavos</div>';
                 for(var i=0;i<16;i++){
-                    var m=pe[cp]&&pe[cp].d?pe[cp].d[i]:['',''];
+                    var m=pe[cp].d[i]||['',''];
                     var l=bracketEquipos[i][0],v=bracketEquipos[i][1];
                     var bloq=(eo.d&&eo.d[i]&&eo.d[i][0]!==''&&eo.d[i][1]!=='');
                     var bc=bloq?' blocked':'',da=bloq?' disabled':'';
