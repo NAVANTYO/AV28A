@@ -1,4 +1,4 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -20,6 +20,7 @@
         #wm-grupos{background-image:url('https://i.imgur.com/fitOjRT.png')}
         #wm-pred{background-image:url('https://i.imgur.com/Ij0xah5.jpeg')}
         #wm-leader{background-image:url('https://i.imgur.com/ue5FgVm.png')}
+        #wm-elim{background-image:url('https://i.imgur.com/vMx5OUY.png')}
         .container{max-width:100%;margin:0 auto;padding:10px;position:relative;z-index:1}
         .header{text-align:center;padding:10px 0 5px}
         .header img{width:180px;max-width:70%;filter:drop-shadow(0 0 20px rgba(201,168,76,0.7));animation:glow 3s infinite;border-radius:15px}
@@ -97,6 +98,13 @@
         .player-pts{font-family:'Open Sans', sans-serif;font-size:1rem;font-weight:700;color:var(--gold);min-width:60px;text-align:right;flex-shrink:0}
         .toast{position:fixed;top:15px;right:15px;background:var(--card);border:2px solid var(--gold);padding:10px 14px;border-radius:8px;color:#fff;z-index:9999;transform:translateX(120%);transition:transform 0.4s;font-family:'Open Sans', sans-serif;font-size:0.7rem;max-width:80%}
         .toast.show{transform:translateX(0)}
+        .elim-container{display:flex;flex-direction:column;gap:15px}
+        .elim-ronda{background:var(--card);border-radius:12px;padding:12px;border:1px solid var(--border)}
+        .elim-ronda-title{font-family:'Open Sans', sans-serif;font-size:1rem;color:var(--gold);text-align:center;margin-bottom:8px;font-weight:700;text-transform:uppercase}
+        .sub-tabs{display:flex;gap:4px;margin-bottom:10px;justify-content:center}
+        .sub-tab{padding:8px 14px;cursor:pointer;font-family:'Science Gothic', sans-serif;font-size:0.6rem;letter-spacing:1px;border:2px solid #555;background:#2a2a2a;color:#aaa;text-transform:uppercase;border-radius:4px;box-shadow:0 3px 0 #111;transition:all 0.1s}
+        .sub-tab:active{transform:translateY(2px);box-shadow:0 1px 0 #111}
+        .sub-tab.active{background:var(--turquoise);color:#000;border-color:#7effff #006060 #006060 #7effff}
         @media(min-width:768px){.container{max-width:1400px;padding:15px 20px}.header img{width:300px}.titulo-quiniela{font-size:4rem}.grupos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:15px}.tab{padding:10px 16px;font-size:0.8rem}.section-tab{font-size:0.7rem}.tabla-scroll{overflow-x:visible}table{min-width:auto}.player-name{font-size:1rem}.player-bar{height:20px}}
     </style>
 </head>
@@ -104,6 +112,7 @@
     <div class="watermark visible" id="wm-grupos"></div>
     <div class="watermark" id="wm-pred"></div>
     <div class="watermark" id="wm-leader"></div>
+    <div class="watermark" id="wm-elim"></div>
     <div class="container">
         <div class="header"><img src="https://i.imgur.com/XCaPQkp.png" alt="Copa"></div>
         <div class="titulo-quiniela">QUINIELA</div>
@@ -118,6 +127,7 @@
         <div class="section-tabs">
             <button class="section-tab active" data-s="grupos">Grupos Oficial</button>
             <button class="section-tab" data-s="predgrupos">Predicciones</button>
+            <button class="section-tab" data-s="elim">Eliminatorias</button>
             <button class="section-tab" data-s="leader">Ranking</button>
         </div>
         <div class="btn-row">
@@ -130,6 +140,14 @@
             <div class="player-indicator">Jugador actual: <span id="predJugador">Chonco</span></div>
             <div class="grupos-grid" id="predGrid"></div>
         </div>
+        <div class="content" id="sec-elim">
+            <div class="sub-tabs" id="subTabsElim">
+                <button class="sub-tab active" data-sub="of">Bracket Oficial</button>
+                <button class="sub-tab" data-sub="pr">Predicciones</button>
+            </div>
+            <div id="elimOficialContainer"><div class="elim-container" id="bracketOficialBox"></div></div>
+            <div id="elimPredContainer" style="display:none"><div class="elim-container" id="bracketPredBox"></div></div>
+        </div>
         <div class="content" id="sec-leader"><div id="leaderBox"></div></div>
         <div class="toast" id="toast"></div>
     </div>
@@ -141,103 +159,167 @@
     <script>
         var fb={apiKey:"AIzaSyDhCFNTSf9ti3Hbz7Z8FhpCE-J3oetYX7o",authDomain:"quiniela-2026-de452.firebaseapp.com",databaseURL:"https://quiniela-2026-de452-default-rtdb.firebaseio.com",projectId:"quiniela-2026-de452",storageBucket:"quiniela-2026-de452.firebasestorage.app",messagingSenderId:"285249629571",appId:"1:285249629571:web:1bed6ea303243d5621dab6"};
         firebase.initializeApp(fb);var db=firebase.database();
-        var claveAdmin = "1175"; // Clave de administrador
+        var claveAdmin = "1175"; // Clave de administrador para Grupos Oficial y Reiniciar
 
         function playMenuSound(){try{var a=new(window.AudioContext||window.webkitAudioContext)();var o=a.createOscillator();var g=a.createGain();o.connect(g);g.connect(a.destination);o.type='square';o.frequency.setValueAtTime(800,a.currentTime);o.frequency.setValueAtTime(1000,a.currentTime+0.04);o.frequency.setValueAtTime(1200,a.currentTime+0.08);g.gain.setValueAtTime(0.12,a.currentTime);g.gain.exponentialRampToValueAtTime(0.001,a.currentTime+0.12);o.start(a.currentTime);o.stop(a.currentTime+0.12)}catch(e){}}
         function playWhistleSound(){try{var a=new(window.AudioContext||window.webkitAudioContext)();var o1=a.createOscillator();var o2=a.createOscillator();var g=a.createGain();o1.connect(g);o2.connect(g);g.connect(a.destination);o1.type='sine';o2.type='sine';o1.frequency.setValueAtTime(2000,a.currentTime);o1.frequency.linearRampToValueAtTime(2500,a.currentTime+0.1);o1.frequency.linearRampToValueAtTime(2000,a.currentTime+0.2);o2.frequency.setValueAtTime(2100,a.currentTime);o2.frequency.linearRampToValueAtTime(2600,a.currentTime+0.1);o2.frequency.linearRampToValueAtTime(2100,a.currentTime+0.2);g.gain.setValueAtTime(0.15,a.currentTime);g.gain.linearRampToValueAtTime(0.2,a.currentTime+0.1);g.gain.exponentialRampToValueAtTime(0.001,a.currentTime+0.4);o1.start(a.currentTime);o1.stop(a.currentTime+0.4);o2.start(a.currentTime);o2.stop(a.currentTime+0.4)}catch(e){}}
         document.addEventListener('click',function(e){if(e.target.tagName==='BUTTON'){if(e.target.classList.contains('btn-save')){playWhistleSound();}else{playMenuSound();}}});
 
-        var players=['Chonco','Lonchis','Oscarito','Allens','Tony','Alets'];var cp=0,cs='grupos';
-        var cc={'Mexico':'mx','Sudafrica':'za','Corea del Sur':'kr','Republica Checa':'cz','Canada':'ca','Bosnia y H.':'ba','Qatar':'qa','Suiza':'ch','Brasil':'br','Marruecos':'ma','Haiti':'ht','Escocia':'gb-sct','USA':'us','Paraguay':'py','Australia':'au','Turquia':'tr','Alemania':'de','Curacao':'cw','Costa de Marfil':'ci','Ecuador':'ec','Paises Bajos':'nl','Japon':'jp','Suecia':'se','Tunez':'tn','Belgica':'be','Egipto':'eg','Iran':'ir','Nueva Zelanda':'nz','Espana':'es','Cabo Verde':'cv','Arabia Saudita':'sa','Uruguay':'uy','Francia':'fr','Senegal':'sn','Irak':'iq','Noruega':'no','Argentina':'ar','Argelia':'dz','Austria':'at','Jordania':'jo','Portugal':'pt','Congo DR':'cd','Uzbekistan':'uz','Colombia':'co','Inglaterra':'gb-eng','Croacia':'hr','Ghana':'gh','Panama':'pa'};
+        var players=['Chonco','Lonchis','Oscarito','Allens','Tony','Alets'];var cp=0,cs='grupos',csub='of';
+        var cc={'Mexico':'mx','Sudafrica':'za','Corea del Sur':'kr','Republica Checa':'cz','Canada':'ca','Bosnia y H.':'ba','Qatar':'qa','Suiza':'ch','Brasil':'br','Marruecos':'ma','Haiti':'ht','Escocia':'gb-sct','USA':'us','Paraguay':'py','Australia':'au','Turquia':'tr','Alemania':'de','Curacao':'cw','Costa de Marfil':'ci','Ecuador':'ec','Paises Bajos':'nl','Japon':'jp','Suecia':'se','Tunez':'tn','Belgica':'be','Egipto':'eg','Iran':'ir','Nueva Zelanda':'nz','Espana':'es','Cabo Verde':'cv','Arabia Saudita':'sa','Uruguay':'uy','Francia':'fr','Senegal':'sn','Irak':'iq','Noruega':'no','Argentina':'ar','Argelia':'dz','Austria':'at','Jordania':'jo','Portugal':'pt','Congo DR':'cd','Uzbekistan':'uz','Colombia':'co','Inglaterra':'gb-eng','Croacia':'hr','Ghana':'gh','Panama':'pa','Suecia':'se','Bosnia y Herzegovina':'ba','Republica Democratica del Congo':'cd'};
         function gf(p){return'https://flagcdn.com/w320/'+(cc[p]||'xx')+'.png';}
         var grupos=[{nombre:'Grupo A',eq:['Mexico','Sudafrica','Corea del Sur','Republica Checa']},{nombre:'Grupo B',eq:['Canada','Bosnia y H.','Qatar','Suiza']},{nombre:'Grupo C',eq:['Brasil','Marruecos','Haiti','Escocia']},{nombre:'Grupo D',eq:['USA','Paraguay','Australia','Turquia']},{nombre:'Grupo E',eq:['Alemania','Curacao','Costa de Marfil','Ecuador']},{nombre:'Grupo F',eq:['Paises Bajos','Japon','Suecia','Tunez']},{nombre:'Grupo G',eq:['Belgica','Egipto','Iran','Nueva Zelanda']},{nombre:'Grupo H',eq:['Espana','Cabo Verde','Arabia Saudita','Uruguay']},{nombre:'Grupo I',eq:['Francia','Senegal','Irak','Noruega']},{nombre:'Grupo J',eq:['Argentina','Argelia','Austria','Jordania']},{nombre:'Grupo K',eq:['Portugal','Congo DR','Uzbekistan','Colombia']},{nombre:'Grupo L',eq:['Inglaterra','Croacia','Ghana','Panama']}];
-        var pg=[[0,1],[0,2],[0,3],[1,2],[1,3],[2,3]];var od={},pd={};
-        function init(){od={};pd={};for(var g=0;g<12;g++){od[g]=[];for(var m=0;m<6;m++)od[g][m]=['',''];}for(var p=0;p<6;p++){pd[p]={};for(var g=0;g<12;g++){pd[p][g]=[];for(var m=0;m<6;m++)pd[p][g][m]=['',''];}}}init();
-        function sync(){db.ref('od14').on('value',function(s){var d=s.val();if(d){for(var g=0;g<12;g++){if(!od[g])od[g]=[];for(var m=0;m<6;m++){if(!od[g][m])od[g][m]=['',''];if(d[g]&&d[g][m]){od[g][m][0]=d[g][m][0]||'';od[g][m][1]=d[g][m][1]||'';}}}}render();});db.ref('pd14').on('value',function(s){var d=s.val();if(d){for(var p=0;p<6;p++){if(!pd[p])pd[p]={};for(var g=0;g<12;g++){if(!pd[p][g])pd[p][g]=[];for(var m=0;m<6;m++){if(!pd[p][g][m])pd[p][g][m]=['',''];if(d[p]&&d[p][g]&&d[p][g][m]){pd[p][g][m][0]=d[p][g][m][0]||'';pd[p][g][m][1]=d[p][g][m][1]||'';}}}}}render();});}
+        var pg=[[0,1],[0,2],[0,3],[1,2],[1,3],[2,3]];var od={},pd={},eo={},pe={};
+        function initElimData(){
+            db.ref('eo15').once('value',function(snap){
+                if(!snap.val()){
+                    var defaultEo = {
+                        d: [
+                            ['1','0'], // Canadá 1-0 Sudáfrica
+                            ['',''], // Alemania vs Paraguay
+                            ['',''], // Países Bajos vs Marruecos
+                            ['',''], // Francia vs Suecia
+                            ['',''], // Portugal vs Croacia
+                            ['',''], // España vs Austria
+                            ['',''], // Estados Unidos vs Bosnia
+                            ['',''], // Bélgica vs Senegal
+                            ['2','1'], // Brasil 2-1 Japón
+                            ['',''], // Costa de Marfil vs Noruega
+                            ['',''], // México vs Ecuador
+                            ['',''], // Inglaterra vs RD Congo
+                            ['',''], // Argentina vs Cabo Verde
+                            ['',''], // Australia vs Egipto
+                            ['',''], // Suiza vs Argelia
+                            ['','']  // Colombia vs Ghana
+                        ],
+                        o: [['',''],['',''],['',''],['',''],['',''],['',''],['',''],['','']],
+                        c: [['',''],['',''],['',''],['','']],
+                        s: [['',''],['','']],
+                        f: ['',''],
+                        t: ['','']
+                    };
+                    db.ref('eo15').set(defaultEo);
+                }
+            });
+        }
+        function init(){od={};pd={};eo={d:[],o:[],c:[],s:[],f:['',''],t:['','']};pe={};for(var g=0;g<12;g++){od[g]=[];for(var m=0;m<6;m++)od[g][m]=['',''];}for(var p=0;p<6;p++){pd[p]={};for(var g=0;g<12;g++){pd[p][g]=[];for(var m=0;m<6;m++)pd[p][g][m]=['',''];}pe[p]={d:[],o:[],c:[],s:[],f:['',''],t:['','']};for(var i=0;i<16;i++)pe[p].d.push(['','']);for(var i=0;i<8;i++)pe[p].o.push(['','']);for(var i=0;i<4;i++)pe[p].c.push(['','']);for(var i=0;i<2;i++)pe[p].s.push(['','']);}for(var i=0;i<16;i++)eo.d.push(['','']);for(var i=0;i<8;i++)eo.o.push(['','']);for(var i=0;i<4;i++)eo.c.push(['','']);for(var i=0;i<2;i++)eo.s.push(['','']);initElimData();}init();
+        function sync(){db.ref('od14').on('value',function(s){var d=s.val();if(d){for(var g=0;g<12;g++){if(!od[g])od[g]=[];for(var m=0;m<6;m++){if(!od[g][m])od[g][m]=['',''];if(d[g]&&d[g][m]){od[g][m][0]=d[g][m][0]||'';od[g][m][1]=d[g][m][1]||'';}}}}render();});db.ref('pd14').on('value',function(s){var d=s.val();if(d){for(var p=0;p<6;p++){if(!pd[p])pd[p]={};for(var g=0;g<12;g++){if(!pd[p][g])pd[p][g]=[];for(var m=0;m<6;m++){if(!pd[p][g][m])pd[p][g][m]=['',''];if(d[p]&&d[p][g]&&d[p][g][m]){pd[p][g][m][0]=d[p][g][m][0]||'';pd[p][g][m][1]=d[p][g][m][1]||'';}}}}}render();});db.ref('eo15').on('value',function(s){var d=s.val();if(d){['d','o','c','s'].forEach(function(r){if(d[r]){d[r].forEach(function(pt,i){if(!eo[r])eo[r]=[];if(!eo[r][i])eo[r][i]=['',''];eo[r][i][0]=pt[0]||'';eo[r][i][1]=pt[1]||'';});}});if(d.f)eo.f=[d.f[0]||'',d.f[1]||''];if(d.t)eo.t=[d.t[0]||'',d.t[1]||''];render();}});db.ref('pe15').on('value',function(s){var d=s.val();if(d){for(var p=0;p<6;p++){if(!pe[p])pe[p]={d:[],o:[],c:[],s:[],f:['',''],t:['','']};if(d[p]){['d','o','c','s'].forEach(function(r){if(d[p][r]){if(!pe[p][r])pe[p][r]=[];d[p][r].forEach(function(pt,i){if(!pe[p][r][i])pe[p][r][i]=['',''];pe[p][r][i][0]=pt[0]||'';pe[p][r][i][1]=pt[1]||'';});}});if(d[p].f)pe[p].f=[d[p].f[0]||'',d[p].f[1]||''];if(d[p].t)pe[p].t=[d[p].t[0]||'',d[p].t[1]||''];}}}render();}});}
         function so(g,m){db.ref('od14/'+g+'/'+m).set({0:od[g][m][0],1:od[g][m][1]});}
         function sp(p,g,m){db.ref('pd14/'+p+'/'+g+'/'+m).set({0:pd[p][g][m][0],1:pd[p][g][m][1]});}
-        function updateWM(){document.getElementById('wm-grupos').classList.toggle('visible',cs==='grupos'||cs==='predgrupos');document.getElementById('wm-pred').classList.toggle('visible',cs==='predgrupos');document.getElementById('wm-leader').classList.toggle('visible',cs==='leader');}
-        function render(){renderO();renderP();renderL();updateWM();}
+        function se(r,i){db.ref('eo15/'+r+'/'+i).set({0:eo[r][i][0],1:eo[r][i][1]});}
+        function spe(p,r,i){db.ref('pe15/'+p+'/'+r+'/'+i).set({0:pe[p][r][i][0],1:pe[p][r][i][1]});}
+        function updateWM(){document.getElementById('wm-grupos').classList.toggle('visible',cs==='grupos'||cs==='predgrupos');document.getElementById('wm-pred').classList.toggle('visible',cs==='predgrupos');document.getElementById('wm-leader').classList.toggle('visible',cs==='leader');document.getElementById('wm-elim').classList.toggle('visible',cs==='elim');}
+        function render(){renderO();renderP();renderElim();renderL();updateWM();}
         function renderO(){var grid=document.getElementById('oficialGrid');if(!grid)return;grid.innerHTML='';for(var gi=0;gi<12;gi++){var gr=grupos[gi];var c=document.createElement('div');c.className='grupo-card';c.innerHTML='<div class="grupo-title">'+gr.nombre+'</div><div class="tabla-scroll"><table id="to-'+gi+'"><thead><tr><th>#</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>DG</th><th>Pts</th></tr></thead><tbody></tbody></table></div><div class="partidos" id="po-'+gi+'"></div>';grid.appendChild(c);rPO(gi);uTO(gi);}}
         function rPO(gi){var ct=document.getElementById('po-'+gi);if(!ct)return;ct.innerHTML='';var gr=grupos[gi];for(var mi=0;mi<6;mi++){var li=pg[mi][0],vi=pg[mi][1];var l=gr.eq[li],v=gr.eq[vi];var m=(od[gi]&&od[gi][mi])?od[gi][mi]:['',''];var d=document.createElement('div');d.className='partido';d.innerHTML='<span class="pteam l"><img class="flag-s" src="'+gf(l)+'" alt="" onerror="this.style.display=\'none\'">'+l+'</span><input type="number" class="inp of" min="0" max="99" value="'+m[0]+'" data-g="'+gi+'" data-m="'+mi+'" data-t="0" placeholder="-" inputmode="numeric" pattern="[0-9]*"><span class="pvs">vs</span><input type="number" class="inp of" min="0" max="99" value="'+m[1]+'" data-g="'+gi+'" data-m="'+mi+'" data-t="1" placeholder="-" inputmode="numeric" pattern="[0-9]*"><span class="pteam"><img class="flag-s" src="'+gf(v)+'" alt="" onerror="this.style.display=\'none\'">'+v+'</span>';ct.appendChild(d);}var inputs=ct.querySelectorAll('.inp');for(var i=0;i<inputs.length;i++){inputs[i].addEventListener('input',function(){var g=parseInt(this.dataset.g),m=parseInt(this.dataset.m),t=parseInt(this.dataset.t);od[g][m][t]=this.value;uTO(g);so(g,m);var sy=window.scrollY;setTimeout(function(){window.scrollTo(0,sy);},10);});}}
         function uTO(gi){var tb=document.querySelector('#to-'+gi+' tbody');if(!tb)return;var gr=grupos[gi];var st=[];for(var i=0;i<4;i++)st.push({pj:0,g:0,e:0,p:0,gf:0,gc:0,dg:0,pts:0});for(var mi=0;mi<6;mi++){var m=(od[gi]&&od[gi][mi])?od[gi][mi]:['',''];var gl=parseInt(m[0]),gv=parseInt(m[1]);if(!isNaN(gl)&&!isNaN(gv)){var li=pg[mi][0],vi=pg[mi][1];st[li].pj++;st[vi].pj++;st[li].gf+=gl;st[li].gc+=gv;st[vi].gf+=gv;st[vi].gc+=gl;if(gl>gv){st[li].g++;st[li].pts+=3;st[vi].p++;}else if(gl<gv){st[vi].g++;st[vi].pts+=3;st[li].p++;}else{st[li].e++;st[vi].e++;st[li].pts+=1;st[vi].pts+=1;}}}for(var i=0;i<4;i++)st[i].dg=st[i].gf-st[i].gc;var ord=[];for(var i=0;i<4;i++)ord.push({n:gr.eq[i],s:st[i]});ord.sort(function(a,b){if(b.s.pts!==a.s.pts)return b.s.pts-a.s.pts;if(b.s.dg!==a.s.dg)return b.s.dg-a.s.dg;return b.s.gf-a.s.gf;});tb.innerHTML='';for(var p=0;p<4;p++){var e=ord[p],rc='';if(p===0||p===1)rc='green-row';else if(p===2)rc='orange-row';tb.innerHTML+='<tr class="'+rc+'"><td>'+(p+1)+'</td><td class="eq-name"><img class="flag" src="'+gf(e.n)+'" alt="" onerror="this.style.display=\'none\'">'+e.n+'</td><td>'+e.s.pj+'</td><td>'+e.s.g+'</td><td>'+e.s.e+'</td><td>'+e.s.p+'</td><td>'+e.s.gf+'</td><td>'+e.s.gc+'</td><td>'+e.s.dg+'</td><td><strong>'+e.s.pts+'</strong></td></tr>';}}
         function renderP(){var grid=document.getElementById('predGrid');if(!grid)return;grid.innerHTML='';document.getElementById('predJugador').textContent=players[cp];for(var gi=0;gi<12;gi++){var gr=grupos[gi];var c=document.createElement('div');c.className='grupo-card';c.innerHTML='<div class="grupo-title">'+gr.nombre+'</div><div class="partidos" id="pp-'+gi+'"></div>';grid.appendChild(c);rPP(gi);}}
-        function rPP(gi){
-            var ct = document.getElementById('pp-' + gi); if (!ct) return; ct.innerHTML = '';
-            var gr = grupos[gi];
-            for (var mi = 0; mi < 6; mi++) {
-                var li = pg[mi][0], vi = pg[mi][1];
-                var l = gr.eq[li], v = gr.eq[vi];
-                var m = (pd[cp] && pd[cp][gi] && pd[cp][gi][mi]) ? pd[cp][gi][mi] : ['',''];
-                
-                // LÓGICA DE BLOQUEO
-                var oficial = (od[gi] && od[gi][mi]) ? od[gi][mi] : ['',''];
-                var bloqueado = (oficial[0] !== '' && oficial[1] !== '');
-                var blockedClass = bloqueado ? ' blocked' : '';
-                var disabledAttr = bloqueado ? ' disabled' : '';
-                
-                var d = document.createElement('div'); d.className = 'partido';
-                d.innerHTML = '<span class="pteam l"><img class="flag-s" src="' + gf(l) + '" alt="" onerror="this.style.display=\'none\'">' + l + '</span><input type="number" class="inp pr' + blockedClass + '" min="0" max="99" value="' + m[0] + '" data-g="' + gi + '" data-m="' + mi + '" data-t="0" placeholder="-" inputmode="numeric" pattern="[0-9]*"' + disabledAttr + '><span class="pvs">vs</span><input type="number" class="inp pr' + blockedClass + '" min="0" max="99" value="' + m[1] + '" data-g="' + gi + '" data-m="' + mi + '" data-t="1" placeholder="-" inputmode="numeric" pattern="[0-9]*"' + disabledAttr + '><span class="pteam"><img class="flag-s" src="' + gf(v) + '" alt="" onerror="this.style.display=\'none\'">' + v + '</span>';
-                ct.appendChild(d);
+        function rPP(gi){var ct=document.getElementById('pp-'+gi);if(!ct)return;ct.innerHTML='';var gr=grupos[gi];for(var mi=0;mi<6;mi++){var li=pg[mi][0],vi=pg[mi][1];var l=gr.eq[li],v=gr.eq[vi];var m=(pd[cp]&&pd[cp][gi]&&pd[cp][gi][mi])?pd[cp][gi][mi]:['',''];var oficial=(od[gi]&&od[gi][mi])?od[gi][mi]:['',''];var bloqueado=(oficial[0]!==''&&oficial[1]!=='');var blockedClass=bloqueado?' blocked':'';var disabledAttr=bloqueado?' disabled':'';var d=document.createElement('div');d.className='partido';d.innerHTML='<span class="pteam l"><img class="flag-s" src="'+gf(l)+'" alt="" onerror="this.style.display=\'none\'">'+l+'</span><input type="number" class="inp pr'+blockedClass+'" min="0" max="99" value="'+m[0]+'" data-g="'+gi+'" data-m="'+mi+'" data-t="0" placeholder="-" inputmode="numeric" pattern="[0-9]*"'+disabledAttr+'><span class="pvs">vs</span><input type="number" class="inp pr'+blockedClass+'" min="0" max="99" value="'+m[1]+'" data-g="'+gi+'" data-m="'+mi+'" data-t="1" placeholder="-" inputmode="numeric" pattern="[0-9]*"'+disabledAttr+'><span class="pteam"><img class="flag-s" src="'+gf(v)+'" alt="" onerror="this.style.display=\'none\'">'+v+'</span>';ct.appendChild(d);}var inputs=ct.querySelectorAll('.inp');for(var i=0;i<inputs.length;i++){inputs[i].addEventListener('input',function(){if(this.classList.contains('blocked'))return;var g=parseInt(this.dataset.g),m=parseInt(this.dataset.m),t=parseInt(this.dataset.t);pd[cp][g][m][t]=this.value;sp(cp,g,m);renderL();var sy=window.scrollY;setTimeout(function(){window.scrollTo(0,sy);},10);});}}
+
+        // === ELIMINATORIAS ===
+        var bracketEquipos = [
+            ['Canadá','Sudáfrica'],['Alemania','Paraguay'],['Países Bajos','Marruecos'],['Francia','Suecia'],
+            ['Portugal','Croacia'],['España','Austria'],['Estados Unidos','Bosnia y Herzegovina'],['Bélgica','Senegal'],
+            ['Brasil','Japón'],['Costa de Marfil','Noruega'],['México','Ecuador'],['Inglaterra','República Democrática del Congo'],
+            ['Argentina','Cabo Verde'],['Australia','Egipto'],['Suiza','Argelia'],['Colombia','Ghana']
+        ];
+        function obtenerGanador(marcador){var gl=parseInt(marcador[0]),gv=parseInt(marcador[1]);if(isNaN(gl)||isNaN(gv))return null;if(gl>gv)return'local';if(gv>gl)return'visitante';return'empate';}
+        function renderElim(){
+            var wO=document.getElementById('bracketOficialBox'),wP=document.getElementById('bracketPredBox');
+            if(!wO||!wP)return;
+            // Bracket Oficial (sin clave)
+            var hO='';
+            function renderFaseOficial(titulo,ronda,num,equipos){
+                hO+='<div class="elim-ronda"><div class="elim-ronda-title">'+titulo+'</div>';
+                for(var i=0;i<num;i++){
+                    var m=eo[ronda]&&eo[ronda][i]?eo[ronda][i]:['',''];
+                    var l=equipos?equipos[i][0]:'Local',v=equipos?equipos[i][1]:'Visitante';
+                    hO+='<div class="partido"><span class="pteam l"><img class="flag-s" src="'+gf(l)+'" alt="" onerror="this.style.display=\'none\'">'+l+'</span><input type="number" class="inp of" min="0" max="99" value="'+m[0]+'" data-r="'+ronda+'" data-i="'+i+'" data-t="0" placeholder="-"><span class="pvs">vs</span><input type="number" class="inp of" min="0" max="99" value="'+m[1]+'" data-r="'+ronda+'" data-i="'+i+'" data-t="1" placeholder="-"><span class="pteam"><img class="flag-s" src="'+gf(v)+'" alt="" onerror="this.style.display=\'none\'">'+v+'</span></div>';
+                }
+                hO+='</div>';
             }
-            var inputs = ct.querySelectorAll('.inp');
-            for (var i = 0; i < inputs.length; i++) {
-                inputs[i].addEventListener('input', function() {
-                    if (this.classList.contains('blocked')) return;
-                    var g = parseInt(this.dataset.g), m = parseInt(this.dataset.m), t = parseInt(this.dataset.t);
-                    pd[cp][g][m][t] = this.value;
-                    sp(cp, g, m);
-                    renderL();
-                    var sy = window.scrollY;
-                    setTimeout(function() { window.scrollTo(0, sy); }, 10);
-                });
+            renderFaseOficial('Dieciseisavos','d',16,bracketEquipos);
+            hO+='<div class="elim-ronda"><div class="elim-ronda-title">Octavos</div>';
+            for(var i=0;i<8;i++){
+                var m=eo.o&&eo.o[i]?eo.o[i]:['',''];
+                var p1=eo.d[i*2],p2=eo.d[i*2+1];
+                var eq1='Ganador '+(i*2+1),eq2='Ganador '+(i*2+2);
+                if(p1&&p1[0]!==''&&p1[1]!==''){var g=obtenerGanador(p1);if(g==='local')eq1=bracketEquipos[i*2][0];else if(g==='visitante')eq1=bracketEquipos[i*2][1];}
+                if(p2&&p2[0]!==''&&p2[1]!==''){var g=obtenerGanador(p2);if(g==='local')eq2=bracketEquipos[i*2+1][0];else if(g==='visitante')eq2=bracketEquipos[i*2+1][1];}
+                hO+='<div class="partido"><span class="pteam l">'+eq1+'</span><input type="number" class="inp of" value="'+m[0]+'" data-r="o" data-i="'+i+'" data-t="0" placeholder="-"><span class="pvs">vs</span><input type="number" class="inp of" value="'+m[1]+'" data-r="o" data-i="'+i+'" data-t="1" placeholder="-"><span class="pteam">'+eq2+'</span></div>';
             }
+            hO+='</div>';
+            ['c','s'].forEach(function(r,idx){
+                var titulo=idx===0?'Cuartos':'Semifinales';
+                var num=idx===0?4:2;
+                hO+='<div class="elim-ronda"><div class="elim-ronda-title">'+titulo+'</div>';
+                for(var i=0;i<num;i++){
+                    var m=eo[r]&&eo[r][i]?eo[r][i]:['',''];
+                    hO+='<div class="partido"><span class="pteam l">Local</span><input type="number" class="inp of" value="'+m[0]+'" data-r="'+r+'" data-i="'+i+'" data-t="0" placeholder="-"><span class="pvs">vs</span><input type="number" class="inp of" value="'+m[1]+'" data-r="'+r+'" data-i="'+i+'" data-t="1" placeholder="-"><span class="pteam">Visitante</span></div>';
+                }
+                hO+='</div>';
+            });
+            hO+='<div class="elim-ronda"><div class="elim-ronda-title">Final</div><div class="partido"><span class="pteam l">Finalista 1</span><input type="number" class="inp of" value="'+(eo.f?eo.f[0]:'')+'" data-r="f" data-i="0" data-t="0" placeholder="-"><span class="pvs">vs</span><input type="number" class="inp of" value="'+(eo.f?eo.f[1]:'')+'" data-r="f" data-i="0" data-t="1" placeholder="-"><span class="pteam">Finalista 2</span></div></div>';
+            hO+='<div class="elim-ronda"><div class="elim-ronda-title">3er Lugar</div><div class="partido"><span class="pteam l">Perdedor S1</span><input type="number" class="inp of" value="'+(eo.t?eo.t[0]:'')+'" data-r="t" data-i="0" data-t="0" placeholder="-"><span class="pvs">vs</span><input type="number" class="inp of" value="'+(eo.t?eo.t[1]:'')+'" data-r="t" data-i="0" data-t="1" placeholder="-"><span class="pteam">Perdedor S2</span></div></div>';
+            wO.innerHTML=hO;
+            wO.querySelectorAll('.inp').forEach(function(inp){inp.addEventListener('input',function(){var r=this.dataset.r,i=parseInt(this.dataset.i),t=parseInt(this.dataset.t);if(!eo[r])eo[r]=[];if(!eo[r][i])eo[r][i]=['',''];eo[r][i][t]=this.value;se(r,i);});});
+
+            // Predicciones
+            var hP='';
+            for(var pi=0;pi<6;pi++){if(pi!==cp)continue;
+                hP+='<div class="elim-ronda"><div class="elim-ronda-title">Dieciseisavos</div>';
+                for(var i=0;i<16;i++){
+                    var m=pe[cp]&&pe[cp].d?pe[cp].d[i]:['',''];
+                    var l=bracketEquipos[i][0],v=bracketEquipos[i][1];
+                    var bloq=(eo.d&&eo.d[i]&&eo.d[i][0]!==''&&eo.d[i][1]!=='');
+                    var bc=bloq?' blocked':'',da=bloq?' disabled':'';
+                    hP+='<div class="partido"><span class="pteam l"><img class="flag-s" src="'+gf(l)+'" alt="" onerror="this.style.display=\'none\'">'+l+'</span><input type="number" class="inp pr'+bc+'" min="0" max="99" value="'+m[0]+'" data-r="d" data-i="'+i+'" data-t="0" placeholder="-"'+da+'><span class="pvs">vs</span><input type="number" class="inp pr'+bc+'" min="0" max="99" value="'+m[1]+'" data-r="d" data-i="'+i+'" data-t="1" placeholder="-"'+da+'><span class="pteam"><img class="flag-s" src="'+gf(v)+'" alt="" onerror="this.style.display=\'none\'">'+v+'</span></div>';
+                }
+                hP+='</div>';
+            }
+            wP.innerHTML=hP;
+            wP.querySelectorAll('.inp').forEach(function(inp){inp.addEventListener('input',function(){if(this.classList.contains('blocked'))return;var r=this.dataset.r,i=parseInt(this.dataset.i),t=parseInt(this.dataset.t);if(!pe[cp][r])pe[cp][r]=[];if(!pe[cp][r][i])pe[cp][r][i]=['',''];pe[cp][r][i][t]=this.value;spe(cp,r,i);renderL();var sy=window.scrollY;setTimeout(function(){window.scrollTo(0,sy);},10);});});
         }
-        function renderL(){var ct=document.getElementById('leaderBox');if(!ct)return;var pts=[];for(var pi=0;pi<6;pi++){var puntos=0;for(var g=0;g<12;g++){for(var m=0;m<6;m++){var of=(od[g]&&od[g][m])?od[g][m]:['',''];var pr=(pd[pi]&&pd[pi][g]&&pd[pi][g][m])?pd[pi][g][m]:['',''];var gol=parseInt(of[0]),gov=parseInt(of[1]),gpl=parseInt(pr[0]),gpv=parseInt(pr[1]);if(!isNaN(gol)&&!isNaN(gov)&&!isNaN(gpl)&&!isNaN(gpv)){if(gpl===gol&&gpv===gov)puntos+=6;else if((gol>gov&&gpl>gpv)||(gol<gov&&gpl<gpv)||(gol===gov&&gpl===gpv))puntos+=3;}}}pts.push({nombre:players[pi],puntos:puntos,index:pi});}pts.sort(function(a,b){return b.puntos-a.puntos;});var col=['#E4002B','#4d7ec6','#009639','#E81F76','#FF6D00','#7C3AED'];var maxPts=pts[0].puntos||1;var h='<div class="clasificacion-container"><div class="clasif-card"><div class="clasif-title">RANKING</div><div class="clasif-subtitle">6 pts = Marcador exacto | 3 pts = Acertar resultado</div>';
+        function renderL(){var ct=document.getElementById('leaderBox');if(!ct)return;var pts=[];for(var pi=0;pi<6;pi++){var puntos=0;
+            for(var g=0;g<12;g++){for(var m=0;m<6;m++){var of=(od[g]&&od[g][m])?od[g][m]:['',''];var pr=(pd[pi]&&pd[pi][g]&&pd[pi][g][m])?pd[pi][g][m]:['',''];var gol=parseInt(of[0]),gov=parseInt(of[1]),gpl=parseInt(pr[0]),gpv=parseInt(pr[1]);if(!isNaN(gol)&&!isNaN(gov)&&!isNaN(gpl)&&!isNaN(gpv)){if(gpl===gol&&gpv===gov)puntos+=6;else if((gol>gov&&gpl>gpv)||(gol<gov&&gpl<gpv)||(gol===gov&&gpl===gpv))puntos+=3;}}}
+            var rondas=['d','o','c','s'];for(var ri=0;ri<rondas.length;ri++){var r=rondas[ri];var num=(r==='d'?16:r==='o'?8:r==='c'?4:2);for(var i=0;i<num;i++){var of=(eo[r]&&eo[r][i])?eo[r][i]:['',''];var pr=(pe[pi]&&pe[pi][r]&&pe[pi][r][i])?pe[pi][r][i]:['',''];var gol=parseInt(of[0]),gov=parseInt(of[1]),gpl=parseInt(pr[0]),gpv=parseInt(pr[1]);if(!isNaN(gol)&&!isNaN(gov)&&!isNaN(gpl)&&!isNaN(gpv)){if(gpl===gol&&gpv===gov)puntos+=6;else if((gol>gov&&gpl>gpv)||(gol<gov&&gpl<gpv)||(gol===gov&&gpl===gpv))puntos+=3;}}}
+            if(eo.f&&pe[pi]&&pe[pi].f){var of=eo.f,pr=pe[pi].f;var gol=parseInt(of[0]),gov=parseInt(of[1]),gpl=parseInt(pr[0]),gpv=parseInt(pr[1]);if(!isNaN(gol)&&!isNaN(gov)&&!isNaN(gpl)&&!isNaN(gpv)){if(gpl===gol&&gpv===gov)puntos+=6;else if((gol>gov&&gpl>gpv)||(gol<gov&&gpl<gpv)||(gol===gov&&gpl===gpv))puntos+=3;}}
+            if(eo.t&&pe[pi]&&pe[pi].t){var of=eo.t,pr=pe[pi].t;var gol=parseInt(of[0]),gov=parseInt(of[1]),gpl=parseInt(pr[0]),gpv=parseInt(pr[1]);if(!isNaN(gol)&&!isNaN(gov)&&!isNaN(gpl)&&!isNaN(gpv)){if(gpl===gol&&gpv===gov)puntos+=6;else if((gol>gov&&gpl>gpv)||(gol<gov&&gpl<gpv)||(gol===gov&&gpl===gpv))puntos+=3;}}
+            pts.push({nombre:players[pi],puntos:puntos,index:pi});}
+            pts.sort(function(a,b){return b.puntos-a.puntos;});var col=['#E4002B','#4d7ec6','#009639','#E81F76','#FF6D00','#7C3AED'];var maxPts=pts[0].puntos||1;var h='<div class="clasificacion-container"><div class="clasif-card"><div class="clasif-title">RANKING</div><div class="clasif-subtitle">6 pts = Marcador exacto | 3 pts = Acertar resultado</div>';
         for(var i=0;i<6;i++){var p=pts[i];var porcentaje=Math.round((p.puntos/maxPts)*100);var barClass='';if(i===0)barClass='rank-1-bar';else if(i===1)barClass='rank-2-bar';else if(i===2)barClass='rank-3-bar';h+='<div class="player-row"><div class="player-rank-area"><div class="player-rank-num">'+(i+1)+'</div></div><div class="player-info"><div class="player-name" style="color:'+col[p.index]+'">'+p.nombre+'</div><div class="player-bar-container"><div class="player-bar"><div class="player-bar-fill '+barClass+'" style="width:'+porcentaje+'%"></div></div><span class="player-pts">'+p.puntos+' pts</span></div></div></div>';}
         h+='</div></div>';ct.innerHTML=h;}
         function guardar(){toast('Guardado en Firebase');}
         function cargar(){sync();toast('Sincronizado');}
-        function reiniciar() {
-            var intento = prompt("Ingresa la clave de administrador para reiniciar:");
-            if (intento === claveAdmin) {
-                init();
-                db.ref('od14').remove();
-                db.ref('pd14').remove();
-                render();
-                toast('Reiniciado');
-            } else if (intento !== null) {
-                toast('Clave incorrecta');
-            }
-        }
+        function reiniciar(){var intento=prompt("Ingresa la clave de administrador para reiniciar:");if(intento===claveAdmin){init();db.ref('od14').remove();db.ref('pd14').remove();db.ref('eo15').remove();db.ref('pe15').remove();render();toast('Reiniciado');}else if(intento!==null){toast('Clave incorrecta');}}
         function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},2000);}
-        document.getElementById('playerTabs').addEventListener('click',function(e){if(e.target.classList.contains('tab')){cp=parseInt(e.target.dataset.p);var tabs=document.querySelectorAll('#playerTabs .tab');for(var i=0;i<tabs.length;i++)tabs[i].classList.remove('active');e.target.classList.add('active');if(cs==='predgrupos')renderP();renderL();}});
+        document.getElementById('playerTabs').addEventListener('click',function(e){if(e.target.classList.contains('tab')){cp=parseInt(e.target.dataset.p);var tabs=document.querySelectorAll('#playerTabs .tab');for(var i=0;i<tabs.length;i++)tabs[i].classList.remove('active');e.target.classList.add('active');if(cs==='predgrupos')renderP();if(cs==='elim'&&csub==='pr')renderElim();renderL();}});
         document.querySelector('.section-tabs').addEventListener('click',function(e){
             if(e.target.classList.contains('section-tab')){
-                var nuevaSeccion = e.target.dataset.s;
-                
-                // PROTECCIÓN: Si intenta entrar a Grupos Oficial, pedir clave
-                if (nuevaSeccion === 'grupos') {
-                    var intento = prompt("Ingresa la clave de administrador para acceder a Grupos Oficial:");
-                    if (intento !== claveAdmin) {
-                        if (intento !== null) toast('Clave incorrecta');
-                        return; // No deja entrar
-                    }
-                }
-                
-                cs = nuevaSeccion;
-                var tabs=document.querySelectorAll('.section-tab');
-                for(var i=0;i<tabs.length;i++)tabs[i].classList.remove('active');
-                e.target.classList.add('active');
-                var contents=document.querySelectorAll('.content');
-                for(var i=0;i<contents.length;i++)contents[i].classList.remove('active');
+                var nuevaSeccion=e.target.dataset.s;
+                // Solo pedir clave para Grupos Oficial (no para Eliminatorias)
+                if(nuevaSeccion==='grupos'){var intento=prompt("Ingresa la clave de administrador para acceder a Grupos Oficial:");if(intento!==claveAdmin){if(intento!==null)toast('Clave incorrecta');return;}}
+                cs=nuevaSeccion;
+                var tabs=document.querySelectorAll('.section-tab');for(var i=0;i<tabs.length;i++)tabs[i].classList.remove('active');e.target.classList.add('active');
+                var contents=document.querySelectorAll('.content');for(var i=0;i<contents.length;i++)contents[i].classList.remove('active');
                 document.getElementById('sec-'+cs).classList.add('active');
                 if(cs==='predgrupos')renderP();
+                if(cs==='elim'){renderElim();}
                 if(cs==='leader')renderL();
                 updateWM();
             }
         });
-        sync();setTimeout(function(){render();},1500);
+        document.getElementById('subTabsElim').addEventListener('click',function(e){
+            if(e.target.classList.contains('sub-tab')){
+                csub=e.target.dataset.sub;
+                document.querySelectorAll('#subTabsElim .sub-tab').forEach(function(t){t.classList.remove('active')});e.target.classList.add('active');
+                document.getElementById('elimOficialContainer').style.display=csub==='of'?'block':'none';
+                document.getElementById('elimPredContainer').style.display=csub==='pr'?'block':'none';
+                if(csub==='pr')renderElim();
+                updateWM();
+            }
+        });
+        sync();setTimeout(function(){render();},2000);
     </script>
 </body>
 </html>
