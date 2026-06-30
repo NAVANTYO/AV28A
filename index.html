@@ -295,6 +295,24 @@
             font-size: 0.75rem; backdrop-filter: blur(15px);
         }
         .toast.show { transform: translateX(0); }
+        
+        .action-bar { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin: 10px 0; }
+        .btn {
+            padding: 10px 16px;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border: 2px solid;
+            border-radius: 25px;
+            transition: all 0.25s;
+            color: #fff;
+            background: transparent;
+        }
+        .btn:active { transform: scale(0.96); }
+        .btn-save { background: rgba(0, 200, 83, 0.15); border-color: rgba(0, 200, 83, 0.4); color: #00C853; }
+        .btn-load { background: rgba(77, 126, 198, 0.15); border-color: rgba(77, 126, 198, 0.4); color: #4d7ec6; }
     </style>
 </head>
 <body>
@@ -314,6 +332,11 @@
             <button class="nav-tab active" data-s="bracket">Bracket Oficial</button>
             <button class="nav-tab" data-s="predicciones">Predicciones</button>
             <button class="nav-tab" data-s="ranking">Ranking</button>
+        </div>
+        
+        <div class="action-bar">
+            <button class="btn btn-save" onclick="guardar()">💾 Guardar</button>
+            <button class="btn btn-load" onclick="cargar()">🔄 Cargar</button>
         </div>
         
         <div class="section active" id="sec-bracket">
@@ -432,7 +455,6 @@
         
         function se(r, i) { db.ref('eo16/' + r + '/' + i).set({0: eo[r][i][0], 1: eo[r][i][1]}); }
         function spe(p, r, i) { db.ref('pe16/' + p + '/' + r + '/' + i).set({0: pe[p][r][i][0], 1: pe[p][r][i][1]}); }
-        // Funciones para guardar nombres de equipos
         function seName(r, i, pos, name) {
             var ref = db.ref('eo16/' + r + '/' + i);
             ref.once('value', function(snap) {
@@ -519,7 +541,6 @@
             h += '<div class="ronda-card"><div class="ronda-header">Cuartos</div>';
             for (var i = 0; i < 4; i++) {
                 var m = eo.c && eo.c[i] ? eo.c[i] : ['',''];
-                // Usar nombres de Firebase o dejar vacío
                 var lName = m[0] || '';
                 var vName = m[1] || '';
                 h += '<div class="match-row">';
@@ -570,7 +591,6 @@
             
             ct.innerHTML = h;
             
-            // Eventos para inputs numéricos
             ct.querySelectorAll('.score-input').forEach(function(inp) {
                 inp.addEventListener('input', function() {
                     var r = this.dataset.r, i = parseInt(this.dataset.i), t = parseInt(this.dataset.t);
@@ -581,7 +601,6 @@
                 });
             });
             
-            // Eventos para inputs de texto (nombres de equipos)
             ct.querySelectorAll('.team-input').forEach(function(inp) {
                 inp.addEventListener('input', function() {
                     var r = this.dataset.r, i = parseInt(this.dataset.i), pos = parseInt(this.dataset.pos);
@@ -612,7 +631,7 @@
             }
             h += '</div>';
             
-            // Octavos (solo mostrar, no editable en predicciones)
+            // Octavos (solo mostrar)
             h += '<div class="ronda-card"><div class="ronda-header">Octavos</div>';
             for (var i = 0; i < 8; i++) {
                 var idx1 = octavosPairings[i][0], idx2 = octavosPairings[i][1];
@@ -703,6 +722,21 @@
                 h += '</div>';
             }
             ct.innerHTML = h;
+        }
+        
+        function guardar() {
+            toast('✅ Cambios guardados en Firebase');
+        }
+        function cargar() {
+            sync();
+            toast('✅ Datos sincronizados desde la nube');
+        }
+        function toast(m) {
+            var t = document.getElementById('toast');
+            t.textContent = m;
+            t.classList.add('show');
+            clearTimeout(t._t);
+            t._t = setTimeout(function() { t.classList.remove('show'); }, 2500);
         }
         
         // Eventos
