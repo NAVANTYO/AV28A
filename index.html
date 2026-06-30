@@ -46,7 +46,6 @@
         }
         .container { max-width: 100%; margin: 0 auto; padding: 12px; position: relative; z-index: 1; }
         
-        /* HEADER */
         .header { text-align: center; padding: 15px 0 5px; }
         .header img { width: 160px; max-width: 60%; filter: drop-shadow(0 0 20px rgba(201, 168, 76, 0.6)); animation: glow 3s infinite; border-radius: 12px; }
         @keyframes glow { 0%,100% { filter: drop-shadow(0 0 20px rgba(201, 168, 76, 0.6)); } 50% { filter: drop-shadow(0 0 40px rgba(201, 168, 76, 1)); } }
@@ -64,7 +63,6 @@
             text-shadow: none;
         }
         
-        /* PLAYER TABS */
         .players-bar {
             display: flex;
             flex-wrap: wrap;
@@ -99,7 +97,6 @@
         .player-btn.p3.active { background: rgba(255, 109, 0, 0.2); color: #fff; border-color: var(--orange); box-shadow: 0 0 20px rgba(255, 109, 0, 0.3); }
         .player-btn.p4.active { background: rgba(124, 58, 237, 0.2); color: #fff; border-color: var(--purple); box-shadow: 0 0 20px rgba(124, 58, 237, 0.3); }
         
-        /* SECTION TABS */
         .nav-tabs {
             display: flex;
             gap: 4px;
@@ -131,12 +128,10 @@
             box-shadow: 0 4px 15px rgba(201, 168, 76, 0.4);
         }
         
-        /* CONTENT */
         .section { display: none; animation: fadeIn 0.3s ease; }
         .section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* RANKING */
         .ranking-card {
             background: var(--card);
             border-radius: var(--radius);
@@ -176,11 +171,7 @@
         .rank-pos.gold { color: #FFD700; }
         .rank-pos.silver { color: #C0C0C0; }
         .rank-pos.bronze { color: #CD7F32; }
-        .rank-name {
-            flex: 1;
-            font-weight: 600;
-            font-size: 0.95rem;
-        }
+        .rank-name { flex: 1; font-weight: 600; font-size: 0.95rem; }
         .rank-pts {
             font-family: 'Space Grotesk', sans-serif;
             font-weight: 700;
@@ -190,20 +181,9 @@
             border-radius: 20px;
             color: var(--gold);
         }
-        .rank-bar {
-            height: 5px;
-            background: rgba(255, 255, 255, 0.04);
-            border-radius: 3px;
-            margin-top: 4px;
-            overflow: hidden;
-        }
-        .rank-fill {
-            height: 100%;
-            border-radius: 3px;
-            transition: width 0.8s ease;
-        }
+        .rank-bar { height: 5px; background: rgba(255, 255, 255, 0.04); border-radius: 3px; margin-top: 4px; overflow: hidden; }
+        .rank-fill { height: 100%; border-radius: 3px; transition: width 0.8s ease; }
         
-        /* BRACKET */
         .bracket-section { display: flex; flex-direction: column; gap: 12px; }
         .ronda-card {
             background: var(--card);
@@ -275,6 +255,18 @@
         .score-input.oficial { border-color: rgba(201, 168, 76, 0.5); background: rgba(201, 168, 76, 0.08); color: var(--gold); }
         .score-input.prediccion { border-color: rgba(0, 180, 179, 0.5); }
         .score-input.blocked { background: #1a1a1a !important; color: #444 !important; border-color: #333 !important; pointer-events: none; }
+        .team-input {
+            flex: 1;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 0.8rem;
+            font-family: 'Outfit', sans-serif;
+            min-width: 0;
+        }
+        .team-input:focus { outline: none; border-color: var(--gold); }
         
         .sub-nav { display: flex; gap: 4px; margin-bottom: 10px; justify-content: center; }
         .sub-btn {
@@ -310,7 +302,6 @@
         <div class="header"><img src="https://i.imgur.com/XCaPQkp.png" alt="Copa"></div>
         <div class="title">ELIMINATORIAS</div>
         
-        <!-- PLAYER TABS -->
         <div class="players-bar" id="playerTabs">
             <button class="player-btn p0 active" data-p="0">Chonco</button>
             <button class="player-btn p1" data-p="1">Oscarito</button>
@@ -319,19 +310,16 @@
             <button class="player-btn p4" data-p="4">Alets</button>
         </div>
         
-        <!-- NAV TABS -->
         <div class="nav-tabs">
             <button class="nav-tab active" data-s="bracket">Bracket Oficial</button>
             <button class="nav-tab" data-s="predicciones">Predicciones</button>
             <button class="nav-tab" data-s="ranking">Ranking</button>
         </div>
         
-        <!-- BRACKET OFICIAL -->
         <div class="section active" id="sec-bracket">
             <div class="bracket-section" id="bracketOficial"></div>
         </div>
         
-        <!-- PREDICCIONES -->
         <div class="section" id="sec-predicciones">
             <div style="text-align:center;margin-bottom:10px;color:var(--text-secondary);font-size:0.8rem;">
                 Jugador: <strong id="predPlayerName" style="color:var(--gold);">Chonco</strong>
@@ -339,7 +327,6 @@
             <div class="bracket-section" id="bracketPred"></div>
         </div>
         
-        <!-- RANKING -->
         <div class="section" id="sec-ranking">
             <div class="ranking-card" id="rankingContent"></div>
         </div>
@@ -354,15 +341,12 @@
         firebase.initializeApp(fb);
         var db = firebase.database();
         
-        // Jugadores (sin Lonchis)
         var players = ['Chonco', 'Oscarito', 'Allens', 'Tony', 'Alets'];
         var playerColors = ['#E4002B', '#4d7ec6', '#E81F76', '#FF6D00', '#7C3AED'];
-        var cp = 0, cs = 'bracket'; // current player, current section
+        var cp = 0, cs = 'bracket';
         
-        // Ranking base (pts acumulados de grupos)
-        var rankingBase = {0: 141, 1: 117, 2: 159, 3: 117, 4: 147}; // Chonco, Oscarito, Allens, Tony, Alets
+        var rankingBase = {0: 141, 1: 117, 2: 159, 3: 117, 4: 147};
         
-        // Códigos de país para banderas (sin acentos)
         var cc = {
             'Canada':'ca','Sudafrica':'za','Alemania':'de','Paraguay':'py',
             'Paises Bajos':'nl','Marruecos':'ma','Francia':'fr','Suecia':'se',
@@ -375,7 +359,6 @@
         };
         function gf(p) { return 'https://flagcdn.com/w320/' + (cc[p] || 'xx') + '.png'; }
         
-        // Bracket de dieciseisavos (nombres sin acentos para que coincidan con cc)
         var bracketEquipos = [
             ['Canada','Sudafrica'],['Alemania','Paraguay'],['Paises Bajos','Marruecos'],['Francia','Suecia'],
             ['Portugal','Croacia'],['Espana','Austria'],['Estados Unidos','Bosnia y Herzegovina'],['Belgica','Senegal'],
@@ -383,19 +366,12 @@
             ['Argentina','Cabo Verde'],['Australia','Egipto'],['Suiza','Argelia'],['Colombia','Ghana']
         ];
         
-        // Orden de los cruces de octavos (índices de partidos de dieciseisavos)
         var octavosPairings = [
-            [0, 2],   // Ganador 0 vs Ganador 2  (Canadá/Sudáfrica vs Países Bajos/Marruecos)
-            [1, 3],   // Ganador 1 vs Ganador 3  (Alemania/Paraguay vs Francia/Suecia)
-            [8, 9],   // Ganador 8 vs Ganador 9  (Brasil/Japón vs Costa de Marfil/Noruega)
-            [10, 11], // Ganador 10 vs Ganador 11 (México/Ecuador vs Inglaterra/Congo DR)
-            [4, 5],   // Ganador 4 vs Ganador 5  (Portugal/Croacia vs España/Austria)
-            [6, 7],   // Ganador 6 vs Ganador 7  (Estados Unidos/Bosnia vs Bélgica/Senegal)
-            [12, 13], // Ganador 12 vs Ganador 13 (Argentina/Cabo Verde vs Australia/Egipto)
-            [14, 15]  // Ganador 14 vs Ganador 15 (Suiza/Argelia vs Colombia/Ghana)
+            [0, 2], [1, 3], [8, 9], [10, 11],
+            [4, 5], [6, 7], [12, 13], [14, 15]
         ];
         
-        var eo = {}, pe = {}; // Datos oficiales y predicciones
+        var eo = {}, pe = {};
         
         function init() {
             eo = {d:[], o:[], c:[], s:[], f:['',''], t:['','']};
@@ -456,6 +432,23 @@
         
         function se(r, i) { db.ref('eo16/' + r + '/' + i).set({0: eo[r][i][0], 1: eo[r][i][1]}); }
         function spe(p, r, i) { db.ref('pe16/' + p + '/' + r + '/' + i).set({0: pe[p][r][i][0], 1: pe[p][r][i][1]}); }
+        // Funciones para guardar nombres de equipos
+        function seName(r, i, pos, name) {
+            var ref = db.ref('eo16/' + r + '/' + i);
+            ref.once('value', function(snap) {
+                var val = snap.val() || ['',''];
+                val[pos] = name;
+                ref.set(val);
+            });
+        }
+        function speName(p, r, i, pos, name) {
+            var ref = db.ref('pe16/' + p + '/' + r + '/' + i);
+            ref.once('value', function(snap) {
+                var val = snap.val() || ['',''];
+                val[pos] = name;
+                ref.set(val);
+            });
+        }
         
         function obtenerGanador(m) {
             var gl = parseInt(m[0]), gv = parseInt(m[1]);
@@ -495,7 +488,7 @@
             
             fase('Dieciseisavos', 'd', 16, bracketEquipos);
             
-            // Octavos con los cruces específicos
+            // Octavos automáticos
             h += '<div class="ronda-card"><div class="ronda-header">Octavos</div>';
             for (var i = 0; i < 8; i++) {
                 var m = eo.o && eo.o[i] ? eo.o[i] : ['',''];
@@ -522,42 +515,62 @@
             }
             h += '</div>';
             
-            ['c','s'].forEach(function(r, idx) {
-                var titulo = idx === 0 ? 'Cuartos' : 'Semifinales';
-                var num = idx === 0 ? 4 : 2;
-                h += '<div class="ronda-card"><div class="ronda-header">' + titulo + '</div>';
-                for (var i = 0; i < num; i++) {
-                    var m = eo[r] && eo[r][i] ? eo[r][i] : ['',''];
-                    h += '<div class="match-row">';
-                    h += '<span class="team-name right">Local</span>';
-                    h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + m[0] + '" data-r="' + r + '" data-i="' + i + '" data-t="0" placeholder="-">';
-                    h += '<span class="vs-badge">vs</span>';
-                    h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + m[1] + '" data-r="' + r + '" data-i="' + i + '" data-t="1" placeholder="-">';
-                    h += '<span class="team-name">Visitante</span>';
-                    h += '</div>';
-                }
+            // Cuartos manuales
+            h += '<div class="ronda-card"><div class="ronda-header">Cuartos</div>';
+            for (var i = 0; i < 4; i++) {
+                var m = eo.c && eo.c[i] ? eo.c[i] : ['',''];
+                // Usar nombres de Firebase o dejar vacío
+                var lName = m[0] || '';
+                var vName = m[1] || '';
+                h += '<div class="match-row">';
+                h += '<input type="text" class="team-input" value="' + lName + '" data-r="c" data-i="' + i + '" data-pos="0" placeholder="Equipo">';
+                h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + (eo.c && eo.c[i] ? eo.c[i][0] : '') + '" data-r="c" data-i="' + i + '" data-t="0" placeholder="-">';
+                h += '<span class="vs-badge">vs</span>';
+                h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + (eo.c && eo.c[i] ? eo.c[i][1] : '') + '" data-r="c" data-i="' + i + '" data-t="1" placeholder="-">';
+                h += '<input type="text" class="team-input" value="' + vName + '" data-r="c" data-i="' + i + '" data-pos="1" placeholder="Equipo">';
                 h += '</div>';
-            });
+            }
+            h += '</div>';
             
+            // Semifinales manuales
+            h += '<div class="ronda-card"><div class="ronda-header">Semifinales</div>';
+            for (var i = 0; i < 2; i++) {
+                var m = eo.s && eo.s[i] ? eo.s[i] : ['',''];
+                var lName = m[0] || '';
+                var vName = m[1] || '';
+                h += '<div class="match-row">';
+                h += '<input type="text" class="team-input" value="' + lName + '" data-r="s" data-i="' + i + '" data-pos="0" placeholder="Equipo">';
+                h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + (eo.s && eo.s[i] ? eo.s[i][0] : '') + '" data-r="s" data-i="' + i + '" data-t="0" placeholder="-">';
+                h += '<span class="vs-badge">vs</span>';
+                h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + (eo.s && eo.s[i] ? eo.s[i][1] : '') + '" data-r="s" data-i="' + i + '" data-t="1" placeholder="-">';
+                h += '<input type="text" class="team-input" value="' + vName + '" data-r="s" data-i="' + i + '" data-pos="1" placeholder="Equipo">';
+                h += '</div>';
+            }
+            h += '</div>';
+            
+            // Final manual
             h += '<div class="ronda-card"><div class="ronda-header">Final</div>';
             h += '<div class="match-row">';
-            h += '<span class="team-name right">Finalista 1</span>';
+            h += '<input type="text" class="team-input" value="' + (eo.f ? eo.f[0] : '') + '" data-r="f" data-i="0" data-pos="0" placeholder="Finalista 1">';
             h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + (eo.f ? eo.f[0] : '') + '" data-r="f" data-i="0" data-t="0" placeholder="-">';
             h += '<span class="vs-badge">vs</span>';
             h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + (eo.f ? eo.f[1] : '') + '" data-r="f" data-i="0" data-t="1" placeholder="-">';
-            h += '<span class="team-name">Finalista 2</span>';
+            h += '<input type="text" class="team-input" value="' + (eo.f ? eo.f[1] : '') + '" data-r="f" data-i="0" data-pos="1" placeholder="Finalista 2">';
             h += '</div></div>';
             
+            // Tercer lugar manual
             h += '<div class="ronda-card"><div class="ronda-header">3er Lugar</div>';
             h += '<div class="match-row">';
-            h += '<span class="team-name right">Perdedor S1</span>';
+            h += '<input type="text" class="team-input" value="' + (eo.t ? eo.t[0] : '') + '" data-r="t" data-i="0" data-pos="0" placeholder="Perdedor S1">';
             h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + (eo.t ? eo.t[0] : '') + '" data-r="t" data-i="0" data-t="0" placeholder="-">';
             h += '<span class="vs-badge">vs</span>';
             h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + (eo.t ? eo.t[1] : '') + '" data-r="t" data-i="0" data-t="1" placeholder="-">';
-            h += '<span class="team-name">Perdedor S2</span>';
+            h += '<input type="text" class="team-input" value="' + (eo.t ? eo.t[1] : '') + '" data-r="t" data-i="0" data-pos="1" placeholder="Perdedor S2">';
             h += '</div></div>';
             
             ct.innerHTML = h;
+            
+            // Eventos para inputs numéricos
             ct.querySelectorAll('.score-input').forEach(function(inp) {
                 inp.addEventListener('input', function() {
                     var r = this.dataset.r, i = parseInt(this.dataset.i), t = parseInt(this.dataset.t);
@@ -565,6 +578,14 @@
                     if (!eo[r][i]) eo[r][i] = ['',''];
                     eo[r][i][t] = this.value;
                     se(r, i);
+                });
+            });
+            
+            // Eventos para inputs de texto (nombres de equipos)
+            ct.querySelectorAll('.team-input').forEach(function(inp) {
+                inp.addEventListener('input', function() {
+                    var r = this.dataset.r, i = parseInt(this.dataset.i), pos = parseInt(this.dataset.pos);
+                    seName(r, i, pos, this.value);
                 });
             });
         }
@@ -591,6 +612,24 @@
             }
             h += '</div>';
             
+            // Octavos (solo mostrar, no editable en predicciones)
+            h += '<div class="ronda-card"><div class="ronda-header">Octavos</div>';
+            for (var i = 0; i < 8; i++) {
+                var idx1 = octavosPairings[i][0], idx2 = octavosPairings[i][1];
+                var p1 = eo.d[idx1], p2 = eo.d[idx2];
+                var eq1 = '?', eq2 = '?';
+                if (p1 && p1[0] !== '' && p1[1] !== '') {
+                    var g = obtenerGanador(p1);
+                    eq1 = (g === 'local') ? bracketEquipos[idx1][0] : bracketEquipos[idx1][1];
+                }
+                if (p2 && p2[0] !== '' && p2[1] !== '') {
+                    var g = obtenerGanador(p2);
+                    eq2 = (g === 'local') ? bracketEquipos[idx2][0] : bracketEquipos[idx2][1];
+                }
+                h += '<div class="match-row"><span class="team-name right">' + eq1 + '</span><span class="vs-badge">vs</span><span class="team-name">' + eq2 + '</span></div>';
+            }
+            h += '</div>';
+            
             ct.innerHTML = h;
             ct.querySelectorAll('.score-input').forEach(function(inp) {
                 inp.addEventListener('input', function() {
@@ -613,7 +652,6 @@
             var pts = [];
             for (var pi = 0; pi < 5; pi++) {
                 var puntos = rankingBase[pi] || 0;
-                // Sumar puntos de eliminatorias
                 ['d','o','c','s'].forEach(function(r) {
                     var num = r === 'd' ? 16 : r === 'o' ? 8 : r === 'c' ? 4 : 2;
                     for (var i = 0; i < num; i++) {
