@@ -362,16 +362,37 @@
         // Ranking base (pts acumulados de grupos)
         var rankingBase = {0: 141, 1: 117, 2: 159, 3: 117, 4: 147}; // Chonco, Oscarito, Allens, Tony, Alets
         
-        // Códigos de país para banderas
-        var cc = {'Canada':'ca','Sudafrica':'za','Alemania':'de','Paraguay':'py','Paises Bajos':'nl','Marruecos':'ma','Francia':'fr','Suecia':'se','Portugal':'pt','Croacia':'hr','Espana':'es','Austria':'at','Estados Unidos':'us','Bosnia y Herzegovina':'ba','Belgica':'be','Senegal':'sn','Brasil':'br','Japon':'jp','Costa de Marfil':'ci','Noruega':'no','Mexico':'mx','Ecuador':'ec','Inglaterra':'gb-eng','Republica Democratica del Congo':'cd','Argentina':'ar','Cabo Verde':'cv','Australia':'au','Egipto':'eg','Suiza':'ch','Argelia':'dz','Colombia':'co','Ghana':'gh'};
+        // Códigos de país para banderas (sin acentos)
+        var cc = {
+            'Canada':'ca','Sudafrica':'za','Alemania':'de','Paraguay':'py',
+            'Paises Bajos':'nl','Marruecos':'ma','Francia':'fr','Suecia':'se',
+            'Portugal':'pt','Croacia':'hr','Espana':'es','Austria':'at',
+            'Estados Unidos':'us','Bosnia y Herzegovina':'ba','Belgica':'be','Senegal':'sn',
+            'Brasil':'br','Japon':'jp','Costa de Marfil':'ci','Noruega':'no',
+            'Mexico':'mx','Ecuador':'ec','Inglaterra':'gb-eng','Republica Democratica del Congo':'cd',
+            'Argentina':'ar','Cabo Verde':'cv','Australia':'au','Egipto':'eg',
+            'Suiza':'ch','Argelia':'dz','Colombia':'co','Ghana':'gh'
+        };
         function gf(p) { return 'https://flagcdn.com/w320/' + (cc[p] || 'xx') + '.png'; }
         
-        // Bracket de dieciseisavos
+        // Bracket de dieciseisavos (nombres sin acentos para que coincidan con cc)
         var bracketEquipos = [
-            ['Canadá','Sudáfrica'],['Alemania','Paraguay'],['Países Bajos','Marruecos'],['Francia','Suecia'],
-            ['Portugal','Croacia'],['España','Austria'],['Estados Unidos','Bosnia y Herzegovina'],['Bélgica','Senegal'],
-            ['Brasil','Japón'],['Costa de Marfil','Noruega'],['México','Ecuador'],['Inglaterra','República Democrática del Congo'],
+            ['Canada','Sudafrica'],['Alemania','Paraguay'],['Paises Bajos','Marruecos'],['Francia','Suecia'],
+            ['Portugal','Croacia'],['Espana','Austria'],['Estados Unidos','Bosnia y Herzegovina'],['Belgica','Senegal'],
+            ['Brasil','Japon'],['Costa de Marfil','Noruega'],['Mexico','Ecuador'],['Inglaterra','Republica Democratica del Congo'],
             ['Argentina','Cabo Verde'],['Australia','Egipto'],['Suiza','Argelia'],['Colombia','Ghana']
+        ];
+        
+        // Orden de los cruces de octavos (índices de partidos de dieciseisavos)
+        var octavosPairings = [
+            [0, 2],   // Ganador 0 vs Ganador 2  (Canadá/Sudáfrica vs Países Bajos/Marruecos)
+            [1, 3],   // Ganador 1 vs Ganador 3  (Alemania/Paraguay vs Francia/Suecia)
+            [8, 9],   // Ganador 8 vs Ganador 9  (Brasil/Japón vs Costa de Marfil/Noruega)
+            [10, 11], // Ganador 10 vs Ganador 11 (México/Ecuador vs Inglaterra/Congo DR)
+            [4, 5],   // Ganador 4 vs Ganador 5  (Portugal/Croacia vs España/Austria)
+            [6, 7],   // Ganador 6 vs Ganador 7  (Estados Unidos/Bosnia vs Bélgica/Senegal)
+            [12, 13], // Ganador 12 vs Ganador 13 (Argentina/Cabo Verde vs Australia/Egipto)
+            [14, 15]  // Ganador 14 vs Ganador 15 (Suiza/Argelia vs Colombia/Ghana)
         ];
         
         var eo = {}, pe = {}; // Datos oficiales y predicciones
@@ -474,21 +495,22 @@
             
             fase('Dieciseisavos', 'd', 16, bracketEquipos);
             
-            // Octavos
+            // Octavos con los cruces específicos
             h += '<div class="ronda-card"><div class="ronda-header">Octavos</div>';
             for (var i = 0; i < 8; i++) {
                 var m = eo.o && eo.o[i] ? eo.o[i] : ['',''];
-                var p1 = eo.d[i*2], p2 = eo.d[i*2+1];
-                var eq1 = 'Ganador ' + (i*2+1), eq2 = 'Ganador ' + (i*2+2);
+                var idx1 = octavosPairings[i][0], idx2 = octavosPairings[i][1];
+                var p1 = eo.d[idx1], p2 = eo.d[idx2];
+                var eq1 = 'Ganador ' + (idx1+1), eq2 = 'Ganador ' + (idx2+1);
                 if (p1 && p1[0] !== '' && p1[1] !== '') {
                     var g = obtenerGanador(p1);
-                    if (g === 'local') eq1 = bracketEquipos[i*2][0];
-                    else if (g === 'visitante') eq1 = bracketEquipos[i*2][1];
+                    if (g === 'local') eq1 = bracketEquipos[idx1][0];
+                    else if (g === 'visitante') eq1 = bracketEquipos[idx1][1];
                 }
                 if (p2 && p2[0] !== '' && p2[1] !== '') {
                     var g = obtenerGanador(p2);
-                    if (g === 'local') eq2 = bracketEquipos[i*2+1][0];
-                    else if (g === 'visitante') eq2 = bracketEquipos[i*2+1][1];
+                    if (g === 'local') eq2 = bracketEquipos[idx2][0];
+                    else if (g === 'visitante') eq2 = bracketEquipos[idx2][1];
                 }
                 h += '<div class="match-row">';
                 h += '<span class="team-name right">' + eq1 + '</span>';
