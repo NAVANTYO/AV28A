@@ -14,7 +14,6 @@
         :root {
             --bg: #060912;
             --card: rgba(18, 22, 45, 0.85);
-            --card-hover: rgba(25, 30, 55, 0.9);
             --gold: #C9A84C;
             --text: #E8EAF0;
             --text-secondary: #9DA0B5;
@@ -280,25 +279,35 @@
         var rankingBase = {0: 141, 1: 117, 2: 159, 3: 117, 4: 147};
         
         var cc = {
-            'Canada':'ca','Sudafrica':'za','Alemania':'de','Paraguay':'py','Paises Bajos':'nl','Marruecos':'ma','Francia':'fr','Suecia':'se','Portugal':'pt','Croacia':'hr','Espana':'es','Austria':'at','Estados Unidos':'us','Bosnia y Herzegovina':'ba','Belgica':'be','Senegal':'sn','Brasil':'br','Japon':'jp','Costa de Marfil':'ci','Noruega':'no','Mexico':'mx','Ecuador':'ec','Inglaterra':'gb-eng','Republica Democratica del Congo':'cd','Argentina':'ar','Cabo Verde':'cv','Australia':'au','Egipto':'eg','Suiza':'ch','Argelia':'dz','Colombia':'co','Ghana':'gh'
+            'Paraguay':'py','Francia':'fr','Canadá':'ca','Marruecos':'ma',
+            'Portugal':'pt','España':'es','Estados Unidos':'us','Bélgica':'be',
+            'Brasil':'br','Noruega':'no','México':'mx','Inglaterra':'gb-eng',
+            'Argentina':'ar','Egipto':'eg','Suiza':'ch','Colombia':'co'
         };
         function gf(p) { return 'https://flagcdn.com/w320/' + (cc[p] || 'xx') + '.png'; }
         
-        var bracketEquipos = [
-            ['Canada','Sudafrica'],['Alemania','Paraguay'],['Paises Bajos','Marruecos'],['Francia','Suecia'],
-            ['Portugal','Croacia'],['Espana','Austria'],['Estados Unidos','Bosnia y Herzegovina'],['Belgica','Senegal'],
-            ['Brasil','Japon'],['Costa de Marfil','Noruega'],['Mexico','Ecuador'],['Inglaterra','Republica Democratica del Congo'],
-            ['Argentina','Cabo Verde'],['Australia','Egipto'],['Suiza','Argelia'],['Colombia','Ghana']
+        // Octavos de final reales
+        var octavosEquipos = [
+            ['Paraguay','Francia'],
+            ['Canadá','Marruecos'],
+            ['Portugal','España'],
+            ['Estados Unidos','Bélgica'],
+            ['Brasil','Noruega'],
+            ['México','Inglaterra'],
+            ['Argentina','Egipto'],
+            ['Suiza','Colombia']
         ];
         
-        var octavosPairings = [[0,2],[1,3],[8,9],[10,11],[4,5],[6,7],[12,13],[14,15]];
+        // Emparejamientos de cuartos: [ganador partido A, ganador partido B]
+        var cuartosPairings = [[0,1],[2,3],[4,5],[6,7]];
+        // Emparejamientos de semis: [ganador cuartos 0 vs ganador cuartos 1, ganador cuartos 2 vs ganador cuartos 3]
+        var semisPairings = [[0,1],[2,3]];
         
-        var eo = {d:[], o:[], c:[], s:[], f:['',''], t:['','']};
+        var eo = {o:[], c:[], s:[], f:['',''], t:['','']};
         var pe = {};
-        for (var p = 0; p < 5; p++) { pe[p] = {d:[], o:[], c:[], s:[], f:['',''], t:['','']}; }
+        for (var p = 0; p < 5; p++) { pe[p] = {o:[], c:[], s:[], f:['',''], t:['','']}; }
         
         function initArrays() {
-            for (var i = 0; i < 16; i++) { eo.d[i] = ['','']; for (var p = 0; p < 5; p++) pe[p].d[i] = ['','']; }
             for (var i = 0; i < 8; i++) { eo.o[i] = ['','']; for (var p = 0; p < 5; p++) pe[p].o[i] = ['','']; }
             for (var i = 0; i < 4; i++) { eo.c[i] = ['','']; for (var p = 0; p < 5; p++) pe[p].c[i] = ['','']; }
             for (var i = 0; i < 2; i++) { eo.s[i] = ['','']; for (var p = 0; p < 5; p++) pe[p].s[i] = ['','']; }
@@ -306,10 +315,10 @@
         initArrays();
         
         function sync() {
-            db.ref('eo17').on('value', function(s) {
+            db.ref('eo18').on('value', function(s) {
                 var d = s.val();
                 if (d) {
-                    ['d','o','c','s'].forEach(function(r) {
+                    ['o','c','s'].forEach(function(r) {
                         if (d[r]) {
                             for (var i = 0; i < d[r].length; i++) {
                                 if (!eo[r]) eo[r] = [];
@@ -325,13 +334,13 @@
                 }
                 render();
             });
-            db.ref('pe17').on('value', function(s) {
+            db.ref('pe18').on('value', function(s) {
                 var d = s.val();
                 if (d) {
                     for (var p = 0; p < 5; p++) {
-                        if (!pe[p]) pe[p] = {d:[], o:[], c:[], s:[], f:['',''], t:['','']};
+                        if (!pe[p]) pe[p] = {o:[], c:[], s:[], f:['',''], t:['','']};
                         if (d[p]) {
-                            ['d','o','c','s'].forEach(function(r) {
+                            ['o','c','s'].forEach(function(r) {
                                 if (d[p][r]) {
                                     for (var i = 0; i < d[p][r].length; i++) {
                                         if (!pe[p][r]) pe[p][r] = [];
@@ -351,13 +360,13 @@
             });
         }
         
-        function se(r, i) { db.ref('eo17/' + r + '/' + i).set({0: eo[r][i][0], 1: eo[r][i][1]}); }
-        function spe(p, r, i) { db.ref('pe17/' + p + '/' + r + '/' + i).set({0: pe[p][r][i][0], 1: pe[p][r][i][1]}); }
+        function se(r, i) { db.ref('eo18/' + r + '/' + i).set({0: eo[r][i][0], 1: eo[r][i][1]}); }
+        function spe(p, r, i) { db.ref('pe18/' + p + '/' + r + '/' + i).set({0: pe[p][r][i][0], 1: pe[p][r][i][1]}); }
         function seName(r, i, pos, name) {
-            db.ref('eo17/' + r + '/' + i).once('value', function(snap) {
+            db.ref('eo18/' + r + '/' + i).once('value', function(snap) {
                 var val = snap.val() || {0:'',1:''};
                 if (pos === 0) val[0] = name; else val[1] = name;
-                db.ref('eo17/' + r + '/' + i).set(val);
+                db.ref('eo18/' + r + '/' + i).set(val);
             });
         }
         
@@ -380,86 +389,102 @@
             if (!ct) return;
             var h = '';
             
-            h += '<div class="ronda-card"><div class="ronda-header">Dieciseisavos</div>';
-            for (var i = 0; i < 16; i++) {
-                var m = eo.d[i] || ['',''];
-                var l = bracketEquipos[i][0], v = bracketEquipos[i][1];
+            // Octavos de final
+            h += '<div class="ronda-card"><div class="ronda-header">Octavos de Final</div>';
+            for (var i = 0; i < 8; i++) {
+                var m = eo.o[i] || ['',''];
+                var l = octavosEquipos[i][0], v = octavosEquipos[i][1];
                 h += '<div class="match-row">';
                 h += '<span class="team-name right"><img class="team-flag" src="' + gf(l) + '" alt="">' + l + '</span>';
-                h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + m[0] + '" data-r="d" data-i="' + i + '" data-t="0" placeholder="-">';
+                h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + m[0] + '" data-r="o" data-i="' + i + '" data-t="0" placeholder="-">';
                 h += '<span class="vs-badge">vs</span>';
-                h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + m[1] + '" data-r="d" data-i="' + i + '" data-t="1" placeholder="-">';
+                h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + m[1] + '" data-r="o" data-i="' + i + '" data-t="1" placeholder="-">';
                 h += '<span class="team-name"><img class="team-flag" src="' + gf(v) + '" alt="">' + v + '</span>';
                 h += '</div>';
             }
             h += '</div>';
             
-            h += '<div class="ronda-card"><div class="ronda-header">Octavos</div>';
-            for (var i = 0; i < 8; i++) {
-                var m = eo.o[i] || ['',''];
-                var idx1 = octavosPairings[i][0], idx2 = octavosPairings[i][1];
-                var p1 = eo.d[idx1], p2 = eo.d[idx2];
-                var eq1 = 'Ganador ' + (idx1+1), eq2 = 'Ganador ' + (idx2+1);
+            // Cuartos de final (automáticos)
+            h += '<div class="ronda-card"><div class="ronda-header">Cuartos de Final</div>';
+            for (var i = 0; i < 4; i++) {
+                var m = eo.c[i] || ['',''];
+                var idx1 = cuartosPairings[i][0], idx2 = cuartosPairings[i][1];
+                var p1 = eo.o[idx1], p2 = eo.o[idx2];
+                var eq1 = '?', eq2 = '?';
                 if (p1 && p1[0] !== '' && p1[1] !== '') {
                     var g = obtenerGanador(p1);
-                    eq1 = (g === 'local') ? bracketEquipos[idx1][0] : bracketEquipos[idx1][1];
+                    eq1 = (g === 'local') ? octavosEquipos[idx1][0] : octavosEquipos[idx1][1];
                 }
                 if (p2 && p2[0] !== '' && p2[1] !== '') {
                     var g = obtenerGanador(p2);
-                    eq2 = (g === 'local') ? bracketEquipos[idx2][0] : bracketEquipos[idx2][1];
+                    eq2 = (g === 'local') ? octavosEquipos[idx2][0] : octavosEquipos[idx2][1];
                 }
                 h += '<div class="match-row">';
                 h += '<span class="team-name right">' + eq1 + '</span>';
-                h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + m[0] + '" data-r="o" data-i="' + i + '" data-t="0" placeholder="-">';
+                h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + m[0] + '" data-r="c" data-i="' + i + '" data-t="0" placeholder="-">';
                 h += '<span class="vs-badge">vs</span>';
-                h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + m[1] + '" data-r="o" data-i="' + i + '" data-t="1" placeholder="-">';
+                h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + m[1] + '" data-r="c" data-i="' + i + '" data-t="1" placeholder="-">';
                 h += '<span class="team-name">' + eq2 + '</span>';
                 h += '</div>';
             }
             h += '</div>';
             
-            h += '<div class="ronda-card"><div class="ronda-header">Cuartos</div>';
-            for (var i = 0; i < 4; i++) {
-                var m = eo.c[i] || ['',''];
-                h += '<div class="match-row">';
-                h += '<input type="text" class="team-input" value="' + m[0] + '" data-r="c" data-i="' + i + '" data-pos="0" placeholder="Equipo">';
-                h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + m[0] + '" data-r="c" data-i="' + i + '" data-t="0" placeholder="-">';
-                h += '<span class="vs-badge">vs</span>';
-                h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + m[1] + '" data-r="c" data-i="' + i + '" data-t="1" placeholder="-">';
-                h += '<input type="text" class="team-input" value="' + m[1] + '" data-r="c" data-i="' + i + '" data-pos="1" placeholder="Equipo">';
-                h += '</div>';
-            }
-            h += '</div>';
-            
+            // Semifinales (automáticas)
             h += '<div class="ronda-card"><div class="ronda-header">Semifinales</div>';
             for (var i = 0; i < 2; i++) {
                 var m = eo.s[i] || ['',''];
+                var idx1 = semisPairings[i][0], idx2 = semisPairings[i][1];
+                var p1 = eo.c[idx1], p2 = eo.c[idx2];
+                var eq1 = '?', eq2 = '?';
+                if (p1 && p1[0] !== '' && p1[1] !== '') {
+                    var g = obtenerGanador(p1);
+                    // Para cuartos no tenemos nombres de equipos predefinidos, así que ponemos "Ganador Cuartos X"
+                    eq1 = 'Ganador Cuartos ' + (idx1+1);
+                }
+                if (p2 && p2[0] !== '' && p2[1] !== '') {
+                    var g = obtenerGanador(p2);
+                    eq2 = 'Ganador Cuartos ' + (idx2+1);
+                }
                 h += '<div class="match-row">';
-                h += '<input type="text" class="team-input" value="' + m[0] + '" data-r="s" data-i="' + i + '" data-pos="0" placeholder="Equipo">';
+                h += '<span class="team-name right">' + eq1 + '</span>';
                 h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + m[0] + '" data-r="s" data-i="' + i + '" data-t="0" placeholder="-">';
                 h += '<span class="vs-badge">vs</span>';
                 h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + m[1] + '" data-r="s" data-i="' + i + '" data-t="1" placeholder="-">';
-                h += '<input type="text" class="team-input" value="' + m[1] + '" data-r="s" data-i="' + i + '" data-pos="1" placeholder="Equipo">';
+                h += '<span class="team-name">' + eq2 + '</span>';
                 h += '</div>';
             }
             h += '</div>';
             
+            // Final (automática)
             h += '<div class="ronda-card"><div class="ronda-header">Final</div>';
+            var mf = eo.f || ['',''];
+            var p1 = eo.s[0], p2 = eo.s[1];
+            var eq1 = '?', eq2 = '?';
+            if (p1 && p1[0] !== '' && p1[1] !== '') {
+                var g = obtenerGanador(p1);
+                eq1 = 'Ganador Semifinal 1';
+            }
+            if (p2 && p2[0] !== '' && p2[1] !== '') {
+                var g = obtenerGanador(p2);
+                eq2 = 'Ganador Semifinal 2';
+            }
             h += '<div class="match-row">';
-            h += '<input type="text" class="team-input" value="' + (eo.f[0]||'') + '" data-r="f" data-i="0" data-pos="0" placeholder="Finalista 1">';
-            h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + (eo.f[0]||'') + '" data-r="f" data-i="0" data-t="0" placeholder="-">';
+            h += '<span class="team-name right">' + eq1 + '</span>';
+            h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + mf[0] + '" data-r="f" data-i="0" data-t="0" placeholder="-">';
             h += '<span class="vs-badge">vs</span>';
-            h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + (eo.f[1]||'') + '" data-r="f" data-i="0" data-t="1" placeholder="-">';
-            h += '<input type="text" class="team-input" value="' + (eo.f[1]||'') + '" data-r="f" data-i="0" data-pos="1" placeholder="Finalista 2">';
+            h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + mf[1] + '" data-r="f" data-i="0" data-t="1" placeholder="-">';
+            h += '<span class="team-name">' + eq2 + '</span>';
             h += '</div></div>';
             
+            // Tercer lugar (automática)
             h += '<div class="ronda-card"><div class="ronda-header">3er Lugar</div>';
+            var mt = eo.t || ['',''];
             h += '<div class="match-row">';
-            h += '<input type="text" class="team-input" value="' + (eo.t[0]||'') + '" data-r="t" data-i="0" data-pos="0" placeholder="Perdedor S1">';
-            h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + (eo.t[0]||'') + '" data-r="t" data-i="0" data-t="0" placeholder="-">';
+            h += '<span class="team-name right">Perdedor Semifinal 1</span>';
+            h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + mt[0] + '" data-r="t" data-i="0" data-t="0" placeholder="-">';
             h += '<span class="vs-badge">vs</span>';
-            h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + (eo.t[1]||'') + '" data-r="t" data-i="0" data-t="1" placeholder="-">';
-            h += '<input type="text" class="team-input" value="' + (eo.t[1]||'') + '" data-r="t" data-i="0" data-pos="1" placeholder="Perdedor S2">';
+            h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + mt[1] + '" data-r="t" data-i="0" data-t="1" placeholder="-">';
+            h += '<span class="team-name">Perdedor Semifinal 2</span>';
             h += '</div></div>';
             
             ct.innerHTML = h;
@@ -471,16 +496,7 @@
                     if (!eo[r][i]) eo[r][i] = ['',''];
                     eo[r][i][t] = this.value;
                     se(r, i);
-                });
-            });
-            
-            ct.querySelectorAll('.team-input').forEach(function(inp) {
-                inp.addEventListener('input', function() {
-                    var r = this.dataset.r, i = parseInt(this.dataset.i), pos = parseInt(this.dataset.pos);
-                    if (!eo[r]) eo[r] = [];
-                    if (!eo[r][i]) eo[r][i] = ['',''];
-                    eo[r][i][pos] = this.value;
-                    seName(r, i, pos, this.value);
+                    renderBracket(); // Para que se actualicen los nombres de las siguientes rondas
                 });
             });
         }
@@ -490,17 +506,18 @@
             if (!ct) return;
             var h = '';
             
-            h += '<div class="ronda-card"><div class="ronda-header">Dieciseisavos</div>';
-            for (var i = 0; i < 16; i++) {
-                var m = pe[cp].d[i] || ['',''];
-                var l = bracketEquipos[i][0], v = bracketEquipos[i][1];
-                var bloq = (eo.d[i] && eo.d[i][0] !== '' && eo.d[i][1] !== '');
+            // Predicciones para octavos
+            h += '<div class="ronda-card"><div class="ronda-header">Octavos de Final</div>';
+            for (var i = 0; i < 8; i++) {
+                var m = pe[cp].o[i] || ['',''];
+                var l = octavosEquipos[i][0], v = octavosEquipos[i][1];
+                var bloq = (eo.o[i] && eo.o[i][0] !== '' && eo.o[i][1] !== '');
                 var bc = bloq ? ' blocked' : '', da = bloq ? ' disabled' : '';
                 h += '<div class="match-row">';
                 h += '<span class="team-name right"><img class="team-flag" src="' + gf(l) + '" alt="">' + l + '</span>';
-                h += '<input type="number" class="score-input prediccion' + bc + '" min="0" max="99" value="' + m[0] + '" data-r="d" data-i="' + i + '" data-t="0" placeholder="-" ' + da + '>';
+                h += '<input type="number" class="score-input prediccion' + bc + '" min="0" max="99" value="' + m[0] + '" data-r="o" data-i="' + i + '" data-t="0" placeholder="-" ' + da + '>';
                 h += '<span class="vs-badge">vs</span>';
-                h += '<input type="number" class="score-input prediccion' + bc + '" min="0" max="99" value="' + m[1] + '" data-r="d" data-i="' + i + '" data-t="1" placeholder="-" ' + da + '>';
+                h += '<input type="number" class="score-input prediccion' + bc + '" min="0" max="99" value="' + m[1] + '" data-r="o" data-i="' + i + '" data-t="1" placeholder="-" ' + da + '>';
                 h += '<span class="team-name"><img class="team-flag" src="' + gf(v) + '" alt="">' + v + '</span>';
                 h += '</div>';
             }
@@ -527,8 +544,19 @@
             var pts = [];
             for (var pi = 0; pi < 5; pi++) {
                 var puntos = rankingBase[pi] || 0;
-                ['d','o','c','s'].forEach(function(r) {
-                    var num = r === 'd' ? 16 : r === 'o' ? 8 : r === 'c' ? 4 : 2;
+                // Sumar puntos de octavos
+                for (var i = 0; i < 8; i++) {
+                    var of = eo.o[i] || ['',''];
+                    var pr = (pe[pi].o && pe[pi].o[i]) ? pe[pi].o[i] : ['',''];
+                    var gol = parseInt(of[0]), gov = parseInt(of[1]), gpl = parseInt(pr[0]), gpv = parseInt(pr[1]);
+                    if (!isNaN(gol) && !isNaN(gov) && !isNaN(gpl) && !isNaN(gpv)) {
+                        if (gpl === gol && gpv === gov) puntos += 6;
+                        else if ((gol > gov && gpl > gpv) || (gol < gov && gpl < gpv) || (gol === gov && gpl === gpv)) puntos += 3;
+                    }
+                }
+                // Sumar cuartos, semis, final, tercer lugar (si ya hay datos)
+                ['c','s'].forEach(function(r) {
+                    var num = r === 'c' ? 4 : 2;
                     for (var i = 0; i < num; i++) {
                         var of = eo[r][i] || ['',''];
                         var pr = (pe[pi][r] && pe[pi][r][i]) ? pe[pi][r][i] : ['',''];
@@ -578,8 +606,8 @@
         }
         
         function guardar() {
-            db.ref('eo17').set(eo);
-            db.ref('pe17').set(pe);
+            db.ref('eo18').set(eo);
+            db.ref('pe18').set(pe);
             toast('✅ Cambios guardados en Firebase');
         }
         function cargar() {
