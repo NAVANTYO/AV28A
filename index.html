@@ -276,7 +276,8 @@
         var players = ['Chonco', 'Oscarito', 'Allens', 'Tony', 'Alets'];
         var playerColors = ['#E4002B', '#4d7ec6', '#E81F76', '#FF6D00', '#7C3AED'];
         var cp = 0, cs = 'bracket';
-        var rankingBase = {0: 141, 1: 117, 2: 159, 3: 117, 4: 147};
+        // Puntos actualizados al 4 de julio
+        var rankingBase = {0: 180, 1: 153, 2: 198, 3: 162, 4: 189};
         
         var cc = {
             'Paraguay':'py','Francia':'fr','Canadá':'ca','Marruecos':'ma',
@@ -438,7 +439,6 @@
                 var eq1 = '?', eq2 = '?';
                 if (p1 && p1[0] !== '' && p1[1] !== '') {
                     var g = obtenerGanador(p1);
-                    // Para cuartos no tenemos nombres de equipos predefinidos, así que ponemos "Ganador Cuartos X"
                     eq1 = 'Ganador Cuartos ' + (idx1+1);
                 }
                 if (p2 && p2[0] !== '' && p2[1] !== '') {
@@ -496,7 +496,7 @@
                     if (!eo[r][i]) eo[r][i] = ['',''];
                     eo[r][i][t] = this.value;
                     se(r, i);
-                    renderBracket(); // Para que se actualicen los nombres de las siguientes rondas
+                    renderBracket();
                 });
             });
         }
@@ -506,7 +506,6 @@
             if (!ct) return;
             var h = '';
             
-            // Predicciones para octavos
             h += '<div class="ronda-card"><div class="ronda-header">Octavos de Final</div>';
             for (var i = 0; i < 8; i++) {
                 var m = pe[cp].o[i] || ['',''];
@@ -544,7 +543,6 @@
             var pts = [];
             for (var pi = 0; pi < 5; pi++) {
                 var puntos = rankingBase[pi] || 0;
-                // Sumar puntos de octavos
                 for (var i = 0; i < 8; i++) {
                     var of = eo.o[i] || ['',''];
                     var pr = (pe[pi].o && pe[pi].o[i]) ? pe[pi].o[i] : ['',''];
@@ -554,7 +552,6 @@
                         else if ((gol > gov && gpl > gpv) || (gol < gov && gpl < gpv) || (gol === gov && gpl === gpv)) puntos += 3;
                     }
                 }
-                // Sumar cuartos, semis, final, tercer lugar (si ya hay datos)
                 ['c','s'].forEach(function(r) {
                     var num = r === 'c' ? 4 : 2;
                     for (var i = 0; i < num; i++) {
