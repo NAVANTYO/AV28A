@@ -46,27 +46,15 @@
             background-clip: text;
         }
         .players-bar {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            justify-content: center;
-            background: rgba(18, 22, 45, 0.85);
-            border-radius: 14px;
-            padding: 8px;
-            border: 1px solid var(--border);
-            margin-bottom: 12px;
+            display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;
+            background: rgba(18, 22, 45, 0.85); border-radius: 14px; padding: 8px;
+            border: 1px solid var(--border); margin-bottom: 12px;
         }
         .player-btn {
-            padding: 10px 16px;
-            cursor: pointer;
-            font-family: 'Outfit', sans-serif;
-            font-size: 0.8rem;
-            font-weight: 600;
-            border: 2px solid transparent;
-            background: rgba(255, 255, 255, 0.03);
-            color: var(--text-secondary);
-            border-radius: 25px;
-            transition: all 0.25s;
+            padding: 10px 16px; cursor: pointer; font-family: 'Outfit', sans-serif;
+            font-size: 0.8rem; font-weight: 600; border: 2px solid transparent;
+            background: rgba(255, 255, 255, 0.03); color: var(--text-secondary);
+            border-radius: 25px; transition: all 0.25s;
         }
         .player-btn.active { color: #fff; }
         .player-btn.p0.active { background: rgba(228, 0, 43, 0.2); border-color: #E4002B; box-shadow: 0 0 20px rgba(228, 0, 43, 0.3); }
@@ -75,32 +63,22 @@
         .player-btn.p3.active { background: rgba(255, 109, 0, 0.2); border-color: #FF6D00; box-shadow: 0 0 20px rgba(255, 109, 0, 0.3); }
         .player-btn.p4.active { background: rgba(124, 58, 237, 0.2); border-color: #7C3AED; box-shadow: 0 0 20px rgba(124, 58, 237, 0.3); }
         .nav-tabs {
-            display: flex;
-            gap: 4px;
-            margin-bottom: 14px;
-            background: rgba(18, 22, 45, 0.8);
-            border-radius: 14px;
-            padding: 5px;
+            display: flex; gap: 4px; margin-bottom: 14px;
+            background: rgba(18, 22, 45, 0.8); border-radius: 14px; padding: 5px;
             border: 1px solid var(--border);
         }
         .nav-tab {
-            flex: 1;
-            padding: 10px 8px;
-            cursor: pointer;
-            font-family: 'Outfit', sans-serif;
-            font-size: 0.75rem;
-            font-weight: 600;
-            border: none;
-            background: transparent;
-            color: var(--text-secondary);
-            border-radius: 10px;
-            transition: all 0.25s;
-            text-align: center;
+            flex: 1; padding: 10px 8px; cursor: pointer;
+            font-family: 'Outfit', sans-serif; font-size: 0.75rem; font-weight: 600;
+            border: none; background: transparent; color: var(--text-secondary);
+            border-radius: 10px; transition: all 0.25s; text-align: center;
         }
         .nav-tab.active { background: var(--gold); color: #000; font-weight: 700; box-shadow: 0 4px 15px rgba(201, 168, 76, 0.4); }
         .section { display: none; }
         .section.active { display: block; }
         .bracket-section { display: flex; flex-direction: column; gap: 12px; }
+
+        /* Nuevo diseño de tarjetas */
         .ronda-card {
             background: var(--card);
             border-radius: var(--radius);
@@ -117,30 +95,45 @@
             font-weight: 700;
             text-transform: uppercase;
         }
-        .match-row {
+        .match-card {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 8px;
+            border: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+        .match-card:hover { border-color: var(--border-active); }
+        .match-teams {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 10px 12px;
-            background: rgba(255, 255, 255, 0.02);
-            border-radius: 10px;
             gap: 8px;
-            font-size: 0.8rem;
+            margin-bottom: 8px;
         }
-        .team-name {
+        .team-block {
             flex: 1;
-            font-weight: 500;
+            text-align: center;
+        }
+        .team-block.right { text-align: right; }
+        .team-block.left { text-align: left; }
+        .team-flag { width: 24px; height: 16px; object-fit: cover; border-radius: 2px; vertical-align: middle; }
+        .team-name { font-weight: 600; font-size: 0.9rem; margin: 0 4px; }
+        .vs-divider {
+            color: var(--gold);
+            font-weight: 700;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+        .score-row {
             display: flex;
             align-items: center;
-            gap: 6px;
-            min-width: 55px;
+            justify-content: center;
+            gap: 10px;
         }
-        .team-name.right { text-align: right; justify-content: flex-end; }
-        .team-flag { width: 18px; height: 13px; object-fit: cover; border-radius: 2px; flex-shrink: 0; }
-        .vs-badge { font-weight: 700; color: var(--gold); font-size: 0.7rem; width: 28px; text-align: center; }
         .score-input {
-            width: 44px;
-            height: 44px;
+            width: 48px;
+            height: 48px;
             padding: 4px;
             text-align: center;
             background: rgba(255, 255, 255, 0.04);
@@ -148,25 +141,22 @@
             border-radius: 10px;
             color: #fff;
             font-weight: 700;
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-family: 'Space Grotesk', sans-serif;
             -webkit-appearance: none;
-            flex-shrink: 0;
         }
         .score-input.oficial { border-color: rgba(201, 168, 76, 0.5); background: rgba(201, 168, 76, 0.08); color: var(--gold); }
         .score-input.prediccion { border-color: rgba(0, 180, 179, 0.5); }
         .score-input.blocked { background: #1a1a1a !important; color: #444 !important; pointer-events: none; }
-        .team-input {
-            flex: 1;
-            padding: 8px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            color: #fff;
-            font-size: 0.8rem;
-            font-family: 'Outfit', sans-serif;
-            min-width: 0;
+
+        /* Conexiones visuales entre rondas */
+        .arrow-down {
+            text-align: center;
+            font-size: 1.5rem;
+            color: var(--gold);
+            margin: -6px 0;
         }
+
         .ranking-card {
             background: var(--card);
             border-radius: var(--radius);
@@ -177,39 +167,23 @@
         .ranking-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.4rem; text-align: center; color: var(--gold); font-weight: 800; margin-bottom: 4px; }
         .ranking-subtitle { text-align: center; color: var(--text-secondary); font-size: 0.7rem; margin-bottom: 16px; }
         .rank-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 14px;
-            margin-bottom: 6px;
-            background: rgba(255, 255, 255, 0.015);
-            border-radius: 12px;
-            gap: 12px;
+            display: flex; align-items: center; padding: 12px 14px; margin-bottom: 6px;
+            background: rgba(255, 255, 255, 0.015); border-radius: 12px; gap: 12px;
         }
         .rank-pos { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 800; width: 36px; text-align: center; }
         .rank-pos.gold { color: #FFD700; } .rank-pos.silver { color: #C0C0C0; } .rank-pos.bronze { color: #CD7F32; }
         .rank-name { flex: 1; font-weight: 600; font-size: 0.95rem; }
         .rank-pts {
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 700;
-            font-size: 1.1rem;
-            background: rgba(201, 168, 76, 0.1);
-            padding: 6px 14px;
-            border-radius: 20px;
-            color: var(--gold);
+            font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.1rem;
+            background: rgba(201, 168, 76, 0.1); padding: 6px 14px; border-radius: 20px; color: var(--gold);
         }
         .rank-bar { height: 5px; background: rgba(255, 255, 255, 0.04); border-radius: 3px; margin-top: 4px; overflow: hidden; }
         .rank-fill { height: 100%; border-radius: 3px; transition: width 0.8s ease; }
         .action-bar { display: flex; gap: 6px; justify-content: center; margin: 10px 0; }
         .btn {
-            padding: 10px 16px;
-            cursor: pointer;
-            font-family: 'Outfit', sans-serif;
-            font-size: 0.8rem;
-            font-weight: 600;
-            border: 2px solid;
-            border-radius: 25px;
-            color: #fff;
-            background: transparent;
+            padding: 10px 16px; cursor: pointer; font-family: 'Outfit', sans-serif;
+            font-size: 0.8rem; font-weight: 600; border: 2px solid; border-radius: 25px;
+            color: #fff; background: transparent;
         }
         .btn-save { background: rgba(0, 200, 83, 0.15); border-color: rgba(0, 200, 83, 0.4); color: #00C853; }
         .btn-load { background: rgba(77, 126, 198, 0.15); border-color: rgba(77, 126, 198, 0.4); color: #4d7ec6; }
@@ -217,8 +191,7 @@
             position: fixed; top: 16px; right: 16px;
             background: var(--card); border: 1px solid var(--gold);
             padding: 12px 18px; border-radius: 12px; color: #fff;
-            z-index: 9999; transform: translateX(120%);
-            transition: transform 0.35s;
+            z-index: 9999; transform: translateX(120%); transition: transform 0.35s;
             font-size: 0.75rem;
         }
         .toast.show { transform: translateX(0); }
@@ -276,50 +249,41 @@
         var players = ['Chonco', 'Oscarito', 'Allens', 'Tony', 'Alets'];
         var playerColors = ['#E4002B', '#4d7ec6', '#E81F76', '#FF6D00', '#7C3AED'];
         var cp = 0, cs = 'bracket';
-        // Puntos actualizados al 4 de julio
-        var rankingBase = {0: 180, 1: 153, 2: 198, 3: 162, 4: 189};
+        // Puntos base actualizados al 9 de julio
+        var rankingBase = {0: 195, 1: 153, 2: 216, 3: 177, 4: 201}; // Chonco, Oscarito, Allens, Tony, Alets
         
         var cc = {
-            'Paraguay':'py','Francia':'fr','Canadá':'ca','Marruecos':'ma',
-            'Portugal':'pt','España':'es','Estados Unidos':'us','Bélgica':'be',
-            'Brasil':'br','Noruega':'no','México':'mx','Inglaterra':'gb-eng',
-            'Argentina':'ar','Egipto':'eg','Suiza':'ch','Colombia':'co'
+            'Francia':'fr','Marruecos':'ma','España':'es','Bélgica':'be',
+            'Noruega':'no','Inglaterra':'gb-eng','Argentina':'ar','Suiza':'ch'
         };
         function gf(p) { return 'https://flagcdn.com/w320/' + (cc[p] || 'xx') + '.png'; }
         
-        // Octavos de final reales
-        var octavosEquipos = [
-            ['Paraguay','Francia'],
-            ['Canadá','Marruecos'],
-            ['Portugal','España'],
-            ['Estados Unidos','Bélgica'],
-            ['Brasil','Noruega'],
-            ['México','Inglaterra'],
-            ['Argentina','Egipto'],
-            ['Suiza','Colombia']
+        // Cuartos de final
+        var cuartosEquipos = [
+            ['Francia','Marruecos'],
+            ['España','Bélgica'],
+            ['Noruega','Inglaterra'],
+            ['Argentina','Suiza']
         ];
         
-        // Emparejamientos de cuartos: [ganador partido A, ganador partido B]
-        var cuartosPairings = [[0,1],[2,3],[4,5],[6,7]];
-        // Emparejamientos de semis: [ganador cuartos 0 vs ganador cuartos 1, ganador cuartos 2 vs ganador cuartos 3]
-        var semisPairings = [[0,1],[2,3]];
+        // Emparejamientos de semis: [ganador cuartos 0 vs ganador cuartos 3, ganador cuartos 1 vs ganador cuartos 2]
+        var semisPairings = [[0,3],[1,2]];
         
-        var eo = {o:[], c:[], s:[], f:['',''], t:['','']};
+        var eo = {c:[], s:[], f:['',''], t:['','']};
         var pe = {};
-        for (var p = 0; p < 5; p++) { pe[p] = {o:[], c:[], s:[], f:['',''], t:['','']}; }
+        for (var p = 0; p < 5; p++) { pe[p] = {c:[], s:[], f:['',''], t:['','']}; }
         
         function initArrays() {
-            for (var i = 0; i < 8; i++) { eo.o[i] = ['','']; for (var p = 0; p < 5; p++) pe[p].o[i] = ['','']; }
             for (var i = 0; i < 4; i++) { eo.c[i] = ['','']; for (var p = 0; p < 5; p++) pe[p].c[i] = ['','']; }
             for (var i = 0; i < 2; i++) { eo.s[i] = ['','']; for (var p = 0; p < 5; p++) pe[p].s[i] = ['','']; }
         }
         initArrays();
         
         function sync() {
-            db.ref('eo18').on('value', function(s) {
+            db.ref('eo19').on('value', function(s) {
                 var d = s.val();
                 if (d) {
-                    ['o','c','s'].forEach(function(r) {
+                    ['c','s'].forEach(function(r) {
                         if (d[r]) {
                             for (var i = 0; i < d[r].length; i++) {
                                 if (!eo[r]) eo[r] = [];
@@ -335,13 +299,13 @@
                 }
                 render();
             });
-            db.ref('pe18').on('value', function(s) {
+            db.ref('pe19').on('value', function(s) {
                 var d = s.val();
                 if (d) {
                     for (var p = 0; p < 5; p++) {
-                        if (!pe[p]) pe[p] = {o:[], c:[], s:[], f:['',''], t:['','']};
+                        if (!pe[p]) pe[p] = {c:[], s:[], f:['',''], t:['','']};
                         if (d[p]) {
-                            ['o','c','s'].forEach(function(r) {
+                            ['c','s'].forEach(function(r) {
                                 if (d[p][r]) {
                                     for (var i = 0; i < d[p][r].length; i++) {
                                         if (!pe[p][r]) pe[p][r] = [];
@@ -361,15 +325,8 @@
             });
         }
         
-        function se(r, i) { db.ref('eo18/' + r + '/' + i).set({0: eo[r][i][0], 1: eo[r][i][1]}); }
-        function spe(p, r, i) { db.ref('pe18/' + p + '/' + r + '/' + i).set({0: pe[p][r][i][0], 1: pe[p][r][i][1]}); }
-        function seName(r, i, pos, name) {
-            db.ref('eo18/' + r + '/' + i).once('value', function(snap) {
-                var val = snap.val() || {0:'',1:''};
-                if (pos === 0) val[0] = name; else val[1] = name;
-                db.ref('eo18/' + r + '/' + i).set(val);
-            });
-        }
+        function se(r, i) { db.ref('eo19/' + r + '/' + i).set({0: eo[r][i][0], 1: eo[r][i][1]}); }
+        function spe(p, r, i) { db.ref('pe19/' + p + '/' + r + '/' + i).set({0: pe[p][r][i][0], 1: pe[p][r][i][1]}); }
         
         function obtenerGanador(m) {
             var gl = parseInt(m[0]), gv = parseInt(m[1]);
@@ -390,47 +347,27 @@
             if (!ct) return;
             var h = '';
             
-            // Octavos de final
-            h += '<div class="ronda-card"><div class="ronda-header">Octavos de Final</div>';
-            for (var i = 0; i < 8; i++) {
-                var m = eo.o[i] || ['',''];
-                var l = octavosEquipos[i][0], v = octavosEquipos[i][1];
-                h += '<div class="match-row">';
-                h += '<span class="team-name right"><img class="team-flag" src="' + gf(l) + '" alt="">' + l + '</span>';
-                h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + m[0] + '" data-r="o" data-i="' + i + '" data-t="0" placeholder="-">';
-                h += '<span class="vs-badge">vs</span>';
-                h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + m[1] + '" data-r="o" data-i="' + i + '" data-t="1" placeholder="-">';
-                h += '<span class="team-name"><img class="team-flag" src="' + gf(v) + '" alt="">' + v + '</span>';
-                h += '</div>';
-            }
-            h += '</div>';
-            
-            // Cuartos de final (automáticos)
+            // Cuartos de final
             h += '<div class="ronda-card"><div class="ronda-header">Cuartos de Final</div>';
             for (var i = 0; i < 4; i++) {
                 var m = eo.c[i] || ['',''];
-                var idx1 = cuartosPairings[i][0], idx2 = cuartosPairings[i][1];
-                var p1 = eo.o[idx1], p2 = eo.o[idx2];
-                var eq1 = '?', eq2 = '?';
-                if (p1 && p1[0] !== '' && p1[1] !== '') {
-                    var g = obtenerGanador(p1);
-                    eq1 = (g === 'local') ? octavosEquipos[idx1][0] : octavosEquipos[idx1][1];
-                }
-                if (p2 && p2[0] !== '' && p2[1] !== '') {
-                    var g = obtenerGanador(p2);
-                    eq2 = (g === 'local') ? octavosEquipos[idx2][0] : octavosEquipos[idx2][1];
-                }
-                h += '<div class="match-row">';
-                h += '<span class="team-name right">' + eq1 + '</span>';
+                var l = cuartosEquipos[i][0], v = cuartosEquipos[i][1];
+                h += '<div class="match-card">';
+                h += '<div class="match-teams">';
+                h += '<div class="team-block right"><img class="team-flag" src="' + gf(l) + '" alt=""> <span class="team-name">' + l + '</span></div>';
+                h += '<div class="vs-divider">vs</div>';
+                h += '<div class="team-block left"><img class="team-flag" src="' + gf(v) + '" alt=""> <span class="team-name">' + v + '</span></div>';
+                h += '</div>';
+                h += '<div class="score-row">';
                 h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + m[0] + '" data-r="c" data-i="' + i + '" data-t="0" placeholder="-">';
-                h += '<span class="vs-badge">vs</span>';
+                h += '<span style="color:var(--gold);font-weight:700;">-</span>';
                 h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + m[1] + '" data-r="c" data-i="' + i + '" data-t="1" placeholder="-">';
-                h += '<span class="team-name">' + eq2 + '</span>';
+                h += '</div>';
                 h += '</div>';
             }
             h += '</div>';
             
-            // Semifinales (automáticas)
+            // Semifinales
             h += '<div class="ronda-card"><div class="ronda-header">Semifinales</div>';
             for (var i = 0; i < 2; i++) {
                 var m = eo.s[i] || ['',''];
@@ -439,23 +376,28 @@
                 var eq1 = '?', eq2 = '?';
                 if (p1 && p1[0] !== '' && p1[1] !== '') {
                     var g = obtenerGanador(p1);
-                    eq1 = 'Ganador Cuartos ' + (idx1+1);
+                    eq1 = (g === 'local') ? cuartosEquipos[idx1][0] : cuartosEquipos[idx1][1];
                 }
                 if (p2 && p2[0] !== '' && p2[1] !== '') {
                     var g = obtenerGanador(p2);
-                    eq2 = 'Ganador Cuartos ' + (idx2+1);
+                    eq2 = (g === 'local') ? cuartosEquipos[idx2][0] : cuartosEquipos[idx2][1];
                 }
-                h += '<div class="match-row">';
-                h += '<span class="team-name right">' + eq1 + '</span>';
+                h += '<div class="match-card">';
+                h += '<div class="match-teams">';
+                h += '<div class="team-block right"><span class="team-name">' + eq1 + '</span></div>';
+                h += '<div class="vs-divider">vs</div>';
+                h += '<div class="team-block left"><span class="team-name">' + eq2 + '</span></div>';
+                h += '</div>';
+                h += '<div class="score-row">';
                 h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + m[0] + '" data-r="s" data-i="' + i + '" data-t="0" placeholder="-">';
-                h += '<span class="vs-badge">vs</span>';
+                h += '<span style="color:var(--gold);font-weight:700;">-</span>';
                 h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + m[1] + '" data-r="s" data-i="' + i + '" data-t="1" placeholder="-">';
-                h += '<span class="team-name">' + eq2 + '</span>';
+                h += '</div>';
                 h += '</div>';
             }
             h += '</div>';
             
-            // Final (automática)
+            // Final
             h += '<div class="ronda-card"><div class="ronda-header">Final</div>';
             var mf = eo.f || ['',''];
             var p1 = eo.s[0], p2 = eo.s[1];
@@ -468,23 +410,33 @@
                 var g = obtenerGanador(p2);
                 eq2 = 'Ganador Semifinal 2';
             }
-            h += '<div class="match-row">';
-            h += '<span class="team-name right">' + eq1 + '</span>';
+            h += '<div class="match-card">';
+            h += '<div class="match-teams">';
+            h += '<div class="team-block right"><span class="team-name">' + eq1 + '</span></div>';
+            h += '<div class="vs-divider">vs</div>';
+            h += '<div class="team-block left"><span class="team-name">' + eq2 + '</span></div>';
+            h += '</div>';
+            h += '<div class="score-row">';
             h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + mf[0] + '" data-r="f" data-i="0" data-t="0" placeholder="-">';
-            h += '<span class="vs-badge">vs</span>';
+            h += '<span style="color:var(--gold);font-weight:700;">-</span>';
             h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + mf[1] + '" data-r="f" data-i="0" data-t="1" placeholder="-">';
-            h += '<span class="team-name">' + eq2 + '</span>';
+            h += '</div>';
             h += '</div></div>';
             
-            // Tercer lugar (automática)
+            // Tercer lugar
             h += '<div class="ronda-card"><div class="ronda-header">3er Lugar</div>';
             var mt = eo.t || ['',''];
-            h += '<div class="match-row">';
-            h += '<span class="team-name right">Perdedor Semifinal 1</span>';
+            h += '<div class="match-card">';
+            h += '<div class="match-teams">';
+            h += '<div class="team-block right"><span class="team-name">Perdedor Semifinal 1</span></div>';
+            h += '<div class="vs-divider">vs</div>';
+            h += '<div class="team-block left"><span class="team-name">Perdedor Semifinal 2</span></div>';
+            h += '</div>';
+            h += '<div class="score-row">';
             h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + mt[0] + '" data-r="t" data-i="0" data-t="0" placeholder="-">';
-            h += '<span class="vs-badge">vs</span>';
+            h += '<span style="color:var(--gold);font-weight:700;">-</span>';
             h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + mt[1] + '" data-r="t" data-i="0" data-t="1" placeholder="-">';
-            h += '<span class="team-name">Perdedor Semifinal 2</span>';
+            h += '</div>';
             h += '</div></div>';
             
             ct.innerHTML = h;
@@ -506,18 +458,23 @@
             if (!ct) return;
             var h = '';
             
-            h += '<div class="ronda-card"><div class="ronda-header">Octavos de Final</div>';
-            for (var i = 0; i < 8; i++) {
-                var m = pe[cp].o[i] || ['',''];
-                var l = octavosEquipos[i][0], v = octavosEquipos[i][1];
-                var bloq = (eo.o[i] && eo.o[i][0] !== '' && eo.o[i][1] !== '');
+            h += '<div class="ronda-card"><div class="ronda-header">Cuartos de Final</div>';
+            for (var i = 0; i < 4; i++) {
+                var m = pe[cp].c[i] || ['',''];
+                var l = cuartosEquipos[i][0], v = cuartosEquipos[i][1];
+                var bloq = (eo.c[i] && eo.c[i][0] !== '' && eo.c[i][1] !== '');
                 var bc = bloq ? ' blocked' : '', da = bloq ? ' disabled' : '';
-                h += '<div class="match-row">';
-                h += '<span class="team-name right"><img class="team-flag" src="' + gf(l) + '" alt="">' + l + '</span>';
-                h += '<input type="number" class="score-input prediccion' + bc + '" min="0" max="99" value="' + m[0] + '" data-r="o" data-i="' + i + '" data-t="0" placeholder="-" ' + da + '>';
-                h += '<span class="vs-badge">vs</span>';
-                h += '<input type="number" class="score-input prediccion' + bc + '" min="0" max="99" value="' + m[1] + '" data-r="o" data-i="' + i + '" data-t="1" placeholder="-" ' + da + '>';
-                h += '<span class="team-name"><img class="team-flag" src="' + gf(v) + '" alt="">' + v + '</span>';
+                h += '<div class="match-card">';
+                h += '<div class="match-teams">';
+                h += '<div class="team-block right"><img class="team-flag" src="' + gf(l) + '" alt=""> <span class="team-name">' + l + '</span></div>';
+                h += '<div class="vs-divider">vs</div>';
+                h += '<div class="team-block left"><img class="team-flag" src="' + gf(v) + '" alt=""> <span class="team-name">' + v + '</span></div>';
+                h += '</div>';
+                h += '<div class="score-row">';
+                h += '<input type="number" class="score-input prediccion' + bc + '" min="0" max="99" value="' + m[0] + '" data-r="c" data-i="' + i + '" data-t="0" placeholder="-" ' + da + '>';
+                h += '<span style="color:var(--gold);font-weight:700;">-</span>';
+                h += '<input type="number" class="score-input prediccion' + bc + '" min="0" max="99" value="' + m[1] + '" data-r="c" data-i="' + i + '" data-t="1" placeholder="-" ' + da + '>';
+                h += '</div>';
                 h += '</div>';
             }
             h += '</div>';
@@ -543,27 +500,26 @@
             var pts = [];
             for (var pi = 0; pi < 5; pi++) {
                 var puntos = rankingBase[pi] || 0;
-                for (var i = 0; i < 8; i++) {
-                    var of = eo.o[i] || ['',''];
-                    var pr = (pe[pi].o && pe[pi].o[i]) ? pe[pi].o[i] : ['',''];
+                // Cuartos
+                for (var i = 0; i < 4; i++) {
+                    var of = eo.c[i] || ['',''];
+                    var pr = (pe[pi].c && pe[pi].c[i]) ? pe[pi].c[i] : ['',''];
                     var gol = parseInt(of[0]), gov = parseInt(of[1]), gpl = parseInt(pr[0]), gpv = parseInt(pr[1]);
                     if (!isNaN(gol) && !isNaN(gov) && !isNaN(gpl) && !isNaN(gpv)) {
                         if (gpl === gol && gpv === gov) puntos += 6;
                         else if ((gol > gov && gpl > gpv) || (gol < gov && gpl < gpv) || (gol === gov && gpl === gpv)) puntos += 3;
                     }
                 }
-                ['c','s'].forEach(function(r) {
-                    var num = r === 'c' ? 4 : 2;
-                    for (var i = 0; i < num; i++) {
-                        var of = eo[r][i] || ['',''];
-                        var pr = (pe[pi][r] && pe[pi][r][i]) ? pe[pi][r][i] : ['',''];
-                        var gol = parseInt(of[0]), gov = parseInt(of[1]), gpl = parseInt(pr[0]), gpv = parseInt(pr[1]);
-                        if (!isNaN(gol) && !isNaN(gov) && !isNaN(gpl) && !isNaN(gpv)) {
-                            if (gpl === gol && gpv === gov) puntos += 6;
-                            else if ((gol > gov && gpl > gpv) || (gol < gov && gpl < gpv) || (gol === gov && gpl === gpv)) puntos += 3;
-                        }
+                // Semis, final, tercer lugar (si existen)
+                for (var i = 0; i < 2; i++) {
+                    var of = eo.s[i] || ['',''];
+                    var pr = (pe[pi].s && pe[pi].s[i]) ? pe[pi].s[i] : ['',''];
+                    var gol = parseInt(of[0]), gov = parseInt(of[1]), gpl = parseInt(pr[0]), gpv = parseInt(pr[1]);
+                    if (!isNaN(gol) && !isNaN(gov) && !isNaN(gpl) && !isNaN(gpv)) {
+                        if (gpl === gol && gpv === gov) puntos += 6;
+                        else if ((gol > gov && gpl > gpv) || (gol < gov && gpl < gpv) || (gol === gov && gpl === gpv)) puntos += 3;
                     }
-                });
+                }
                 if (eo.f[0] !== '' && pe[pi].f[0] !== '') {
                     var gol = parseInt(eo.f[0]), gov = parseInt(eo.f[1]), gpl = parseInt(pe[pi].f[0]), gpv = parseInt(pe[pi].f[1]);
                     if (!isNaN(gol) && !isNaN(gov) && !isNaN(gpl) && !isNaN(gpv)) {
@@ -603,8 +559,8 @@
         }
         
         function guardar() {
-            db.ref('eo18').set(eo);
-            db.ref('pe18').set(pe);
+            db.ref('eo19').set(eo);
+            db.ref('pe19').set(pe);
             toast('✅ Cambios guardados en Firebase');
         }
         function cargar() {
