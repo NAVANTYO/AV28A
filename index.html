@@ -86,7 +86,6 @@
         .btn-save { background: rgba(0, 200, 83, 0.15); border-color: rgba(0, 200, 83, 0.4); color: #00C853; }
         .btn-load { background: rgba(77, 126, 198, 0.15); border-color: rgba(77, 126, 198, 0.4); color: #4d7ec6; }
 
-        /* Bracket con conectores */
         .bracket-container { display: flex; flex-direction: column; align-items: center; gap: 0; }
         .round { width: 100%; max-width: 400px; display: flex; flex-direction: column; align-items: center; }
         .round-title {
@@ -125,14 +124,18 @@
         .score-input.oficial { border-color: rgba(201, 168, 76, 0.5); background: rgba(201, 168, 76, 0.08); color: var(--gold); }
         .score-input.prediccion { border-color: rgba(0, 180, 179, 0.5); }
         .score-input.blocked { background: #1a1a1a !important; color: #444 !important; pointer-events: none; }
+        .penal-btn {
+            background: transparent; border: 1px solid var(--border-active); color: var(--gold);
+            padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; cursor: pointer; margin-top: 4px;
+        }
+        .penal-select { display: none; margin-top: 4px; }
+        .penal-select.active { display: flex; gap: 8px; align-items: center; justify-content: center; }
+        .penal-select select {
+            background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-active);
+            color: #fff; padding: 4px 8px; border-radius: 6px; font-size: 0.7rem;
+        }
 
-        /* Conectores entre rondas */
-        .connector {
-            width: 2px; height: 20px; background: var(--border-active); margin: 0 auto;
-        }
-        .connector-horizontal {
-            height: 2px; width: 40%; background: var(--border-active); margin: 0 auto;
-        }
+        .connector { width: 2px; height: 20px; background: var(--border-active); margin: 0 auto; }
 
         .ranking-card {
             background: var(--card-premium);
@@ -237,55 +240,64 @@
         ];
         var semisPairings = [[0,3],[1,2]];
         
-        var eo = {c:[], s:[], f:['',''], t:['','']};
+        // Estructura de datos: {c: [[goles, goles, penal]], s: [...], f: [...], t: [...]}
+        var eo = {c:[], s:[], f:[null,null,null], t:[null,null,null]};
         var pe = {};
-        for (var p = 0; p < 5; p++) { pe[p] = {c:[], s:[], f:['',''], t:['','']}; }
+        for (var p = 0; p < 5; p++) {
+            pe[p] = {c:[], s:[], f:[null,null,null], t:[null,null,null]};
+        }
         
         function initArrays() {
-            for (var i = 0; i < 4; i++) { eo.c[i] = ['','']; for (var p = 0; p < 5; p++) pe[p].c[i] = ['','']; }
-            for (var i = 0; i < 2; i++) { eo.s[i] = ['','']; for (var p = 0; p < 5; p++) pe[p].s[i] = ['','']; }
+            for (var i = 0; i < 4; i++) { eo.c[i] = ['','',null]; for (var p = 0; p < 5; p++) pe[p].c[i] = ['','',null]; }
+            for (var i = 0; i < 2; i++) { eo.s[i] = ['','',null]; for (var p = 0; p < 5; p++) pe[p].s[i] = ['','',null]; }
         }
         initArrays();
         
         function sync() {
-            db.ref('eo20').on('value', function(s) {
+            db.ref('eo21').on('value', function(s) {
                 var d = s.val();
                 if (d) {
-                    ['c','s'].forEach(function(r) {
+                    ['c','s','f','t'].forEach(function(r) {
                         if (d[r]) {
-                            for (var i = 0; i < d[r].length; i++) {
-                                if (!eo[r]) eo[r] = [];
-                                if (!eo[r][i]) eo[r][i] = ['',''];
-                                var pt = d[r][i];
-                                eo[r][i][0] = (pt && pt[0] !== undefined) ? pt[0] : '';
-                                eo[r][i][1] = (pt && pt[1] !== undefined) ? pt[1] : '';
+                            if (r === 'f' || r === 't') {
+                                eo[r] = d[r] || [null,null,null];
+                            } else {
+                                for (var i = 0; i < d[r].length; i++) {
+                                    if (!eo[r]) eo[r] = [];
+                                    if (!eo[r][i]) eo[r][i] = ['','',null];
+                                    var pt = d[r][i];
+                                    eo[r][i][0] = pt[0] || '';
+                                    eo[r][i][1] = pt[1] || '';
+                                    eo[r][i][2] = pt[2] || null;
+                                }
                             }
                         }
                     });
-                    if (d.f) eo.f = [d.f[0]||'', d.f[1]||''];
-                    if (d.t) eo.t = [d.t[0]||'', d.t[1]||''];
                 }
                 render();
             });
-            db.ref('pe20').on('value', function(s) {
+            db.ref('pe21').on('value', function(s) {
                 var d = s.val();
                 if (d) {
                     for (var p = 0; p < 5; p++) {
-                        if (!pe[p]) pe[p] = {c:[], s:[], f:['',''], t:['','']};
+                        if (!pe[p]) pe[p] = {c:[], s:[], f:[null,null,null], t:[null,null,null]};
                         if (d[p]) {
-                            ['c','s'].forEach(function(r) {
+                            ['c','s','f','t'].forEach(function(r) {
                                 if (d[p][r]) {
-                                    for (var i = 0; i < d[p][r].length; i++) {
-                                        if (!pe[p][r]) pe[p][r] = [];
-                                        if (!pe[p][r][i]) pe[p][r][i] = ['',''];
-                                        var pt = d[p][r][i];
-                                        pe[p][r][i][0] = (pt && pt[0] !== undefined) ? pt[0] : '';
-                                        pe[p][r][i][1] = (pt && pt[1] !== undefined) ? pt[1] : '';
+                                    if (r === 'f' || r === 't') {
+                                        pe[p][r] = d[p][r] || [null,null,null];
+                                    } else {
+                                        for (var i = 0; i < d[p][r].length; i++) {
+                                            if (!pe[p][r]) pe[p][r] = [];
+                                            if (!pe[p][r][i]) pe[p][r][i] = ['','',null];
+                                            var pt = d[p][r][i];
+                                            pe[p][r][i][0] = pt[0] || '';
+                                            pe[p][r][i][1] = pt[1] || '';
+                                            pe[p][r][i][2] = pt[2] || null;
+                                        }
                                     }
                                 }
                             });
-                            if (d[p].f) pe[p].f = [d[p].f[0]||'', d[p].f[1]||''];
-                            if (d[p].t) pe[p].t = [d[p].t[0]||'', d[p].t[1]||''];
                         }
                     }
                 }
@@ -293,15 +305,23 @@
             });
         }
         
-        function se(r, i) { db.ref('eo20/' + r + '/' + i).set({0: eo[r][i][0], 1: eo[r][i][1]}); }
-        function spe(p, r, i) { db.ref('pe20/' + p + '/' + r + '/' + i).set({0: pe[p][r][i][0], 1: pe[p][r][i][1]}); }
+        function se(r, i) {
+            var data = (r === 'f' || r === 't') ? eo[r] : eo[r][i];
+            db.ref('eo21/' + r + (i !== undefined ? '/' + i : '')).set(data);
+        }
+        function spe(p, r, i) {
+            var data = (r === 'f' || r === 't') ? pe[p][r] : pe[p][r][i];
+            db.ref('pe21/' + p + '/' + r + (i !== undefined ? '/' + i : '')).set(data);
+        }
         
         function obtenerGanador(m) {
             var gl = parseInt(m[0]), gv = parseInt(m[1]);
             if (isNaN(gl) || isNaN(gv)) return null;
             if (gl > gv) return 'local';
             if (gv > gl) return 'visitante';
-            return 'empate';
+            // empate
+            if (m[2]) return m[2]; // 'local' o 'visitante'
+            return null; // necesita penales
         }
         
         function render() {
@@ -318,7 +338,7 @@
             // Cuartos
             h += '<div class="round"><div class="round-title">Cuartos de Final</div>';
             for (var i = 0; i < 4; i++) {
-                var m = eo.c[i] || ['',''];
+                var m = eo.c[i] || ['','',null];
                 var l = cuartosEquipos[i][0], v = cuartosEquipos[i][1];
                 var hasResult = (m[0] !== '' && m[1] !== '');
                 var cardClass = hasResult ? ' has-result' : '';
@@ -342,31 +362,36 @@
                 h += '<span style="color:var(--gold);font-weight:700;">-</span>';
                 h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + m[1] + '" data-r="c" data-i="' + i + '" data-t="1" placeholder="-">';
                 h += '</div>';
+                h += '<button class="penal-btn" onclick="togglePenal(this)">⚽ Penales</button>';
+                h += '<div class="penal-select">';
+                h += '<select data-r="c" data-i="' + i + '">';
+                h += '<option value="">Seleccionar ganador</option>';
+                h += '<option value="local"' + (m[2] === 'local' ? ' selected' : '') + '>' + l + '</option>';
+                h += '<option value="visitante"' + (m[2] === 'visitante' ? ' selected' : '') + '>' + v + '</option>';
+                h += '</select>';
+                h += '</div>';
                 h += '</div>';
             }
             h += '</div>';
             
-            // Conectores a semis
-            h += '<div style="display:flex; justify-content:center; gap:0;">';
-            h += '<div style="display:flex; flex-direction:column; align-items:center;">';
-            h += '<div class="connector"></div>';
-            h += '</div>';
-            h += '</div>';
+            h += '<div style="display:flex; justify-content:center;"><div class="connector"></div></div>';
             
             // Semifinales
             h += '<div class="round"><div class="round-title">Semifinales</div>';
             for (var i = 0; i < 2; i++) {
-                var m = eo.s[i] || ['',''];
+                var m = eo.s[i] || ['','',null];
                 var idx1 = semisPairings[i][0], idx2 = semisPairings[i][1];
                 var p1 = eo.c[idx1], p2 = eo.c[idx2];
                 var eq1 = '?', eq2 = '?';
                 if (p1 && p1[0] !== '' && p1[1] !== '') {
                     var g = obtenerGanador(p1);
-                    eq1 = (g === 'local') ? cuartosEquipos[idx1][0] : cuartosEquipos[idx1][1];
+                    if (g === 'local') eq1 = cuartosEquipos[idx1][0];
+                    else if (g === 'visitante') eq1 = cuartosEquipos[idx1][1];
                 }
                 if (p2 && p2[0] !== '' && p2[1] !== '') {
                     var g = obtenerGanador(p2);
-                    eq2 = (g === 'local') ? cuartosEquipos[idx2][0] : cuartosEquipos[idx2][1];
+                    if (g === 'local') eq2 = cuartosEquipos[idx2][0];
+                    else if (g === 'visitante') eq2 = cuartosEquipos[idx2][1];
                 }
                 h += '<div class="match-card">';
                 h += '<div class="match-teams">';
@@ -379,58 +404,120 @@
                 h += '<span style="color:var(--gold);font-weight:700;">-</span>';
                 h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + m[1] + '" data-r="s" data-i="' + i + '" data-t="1" placeholder="-">';
                 h += '</div>';
+                h += '<button class="penal-btn" onclick="togglePenal(this)">⚽ Penales</button>';
+                h += '<div class="penal-select">';
+                h += '<select data-r="s" data-i="' + i + '">';
+                h += '<option value="">Seleccionar ganador</option>';
+                h += '<option value="local"' + (m[2] === 'local' ? ' selected' : '') + '>' + eq1 + '</option>';
+                h += '<option value="visitante"' + (m[2] === 'visitante' ? ' selected' : '') + '>' + eq2 + '</option>';
+                h += '</select>';
+                h += '</div>';
                 h += '</div>';
             }
             h += '</div>';
             
-            // Conectores a final
             h += '<div style="display:flex; justify-content:center;"><div class="connector"></div></div>';
             
             // Final
             h += '<div class="round"><div class="round-title">Final</div>';
-            var mf = eo.f || ['',''];
+            var mf = eo.f || ['','',null];
+            var s1 = eo.s[0], s2 = eo.s[1];
+            var final1 = '?', final2 = '?';
+            if (s1 && s1[0] !== '' && s1[1] !== '') {
+                var g = obtenerGanador(s1);
+                final1 = g === 'local' ? 'Ganador Semifinal 1' : g === 'visitante' ? 'Ganador Semifinal 1' : '?';
+                // Use actual team names if available from quarters
+                // but since semis have generic names, we keep generic
+            }
+            if (s2 && s2[0] !== '' && s2[1] !== '') {
+                var g = obtenerGanador(s2);
+                final2 = g === 'local' ? 'Ganador Semifinal 2' : g === 'visitante' ? 'Ganador Semifinal 2' : '?';
+            }
             h += '<div class="match-card">';
             h += '<div class="match-teams">';
-            h += '<div class="team-block right"><span class="team-name">Ganador S1</span></div>';
+            h += '<div class="team-block right"><span class="team-name">' + final1 + '</span></div>';
             h += '<div class="vs-badge">vs</div>';
-            h += '<div class="team-block left"><span class="team-name">Ganador S2</span></div>';
+            h += '<div class="team-block left"><span class="team-name">' + final2 + '</span></div>';
             h += '</div>';
             h += '<div class="score-row">';
             h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + mf[0] + '" data-r="f" data-i="0" data-t="0" placeholder="-">';
             h += '<span style="color:var(--gold);font-weight:700;">-</span>';
             h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + mf[1] + '" data-r="f" data-i="0" data-t="1" placeholder="-">';
             h += '</div>';
+            h += '<button class="penal-btn" onclick="togglePenal(this)">⚽ Penales</button>';
+            h += '<div class="penal-select">';
+            h += '<select data-r="f" data-i="0">';
+            h += '<option value="">Seleccionar ganador</option>';
+            h += '<option value="local"' + (mf[2] === 'local' ? ' selected' : '') + '>' + final1 + '</option>';
+            h += '<option value="visitante"' + (mf[2] === 'visitante' ? ' selected' : '') + '>' + final2 + '</option>';
+            h += '</select>';
+            h += '</div>';
             h += '</div></div>';
             
             // Tercer lugar
             h += '<div class="round"><div class="round-title">3er Lugar</div>';
-            var mt = eo.t || ['',''];
+            var mt = eo.t || ['','',null];
+            var perdedor1 = 'Perdedor Semifinal 1', perdedor2 = 'Perdedor Semifinal 2';
+            // Determine losers from semis
+            if (s1 && s1[0] !== '' && s1[1] !== '') {
+                var g = obtenerGanador(s1);
+                perdedor1 = g === 'local' ? 'Perdedor Semifinal 1' : 'Perdedor Semifinal 1'; // keep generic for simplicity
+            }
+            if (s2 && s2[0] !== '' && s2[1] !== '') {
+                var g = obtenerGanador(s2);
+                perdedor2 = g === 'local' ? 'Perdedor Semifinal 2' : 'Perdedor Semifinal 2';
+            }
             h += '<div class="match-card">';
             h += '<div class="match-teams">';
-            h += '<div class="team-block right"><span class="team-name">Perdedor S1</span></div>';
+            h += '<div class="team-block right"><span class="team-name">' + perdedor1 + '</span></div>';
             h += '<div class="vs-badge">vs</div>';
-            h += '<div class="team-block left"><span class="team-name">Perdedor S2</span></div>';
+            h += '<div class="team-block left"><span class="team-name">' + perdedor2 + '</span></div>';
             h += '</div>';
             h += '<div class="score-row">';
             h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + mt[0] + '" data-r="t" data-i="0" data-t="0" placeholder="-">';
             h += '<span style="color:var(--gold);font-weight:700;">-</span>';
             h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + mt[1] + '" data-r="t" data-i="0" data-t="1" placeholder="-">';
             h += '</div>';
+            h += '<button class="penal-btn" onclick="togglePenal(this)">⚽ Penales</button>';
+            h += '<div class="penal-select">';
+            h += '<select data-r="t" data-i="0">';
+            h += '<option value="">Seleccionar ganador</option>';
+            h += '<option value="local"' + (mt[2] === 'local' ? ' selected' : '') + '>' + perdedor1 + '</option>';
+            h += '<option value="visitante"' + (mt[2] === 'visitante' ? ' selected' : '') + '>' + perdedor2 + '</option>';
+            h += '</select>';
+            h += '</div>';
             h += '</div></div>';
             
             h += '</div>';
             ct.innerHTML = h;
             
+            // Event listeners for score inputs
             ct.querySelectorAll('.score-input').forEach(function(inp) {
                 inp.addEventListener('input', function() {
                     var r = this.dataset.r, i = parseInt(this.dataset.i), t = parseInt(this.dataset.t);
-                    if (!eo[r]) eo[r] = [];
-                    if (!eo[r][i]) eo[r][i] = ['',''];
-                    eo[r][i][t] = this.value;
+                    var match = (r === 'f' || r === 't') ? eo[r] : eo[r][i];
+                    match[t] = this.value;
                     se(r, i);
                     renderBracket();
                 });
             });
+            
+            // Event listeners for penalty selects
+            ct.querySelectorAll('.penal-select select').forEach(function(sel) {
+                sel.addEventListener('change', function() {
+                    var r = this.dataset.r, i = parseInt(this.dataset.i);
+                    var val = this.value || null;
+                    var match = (r === 'f' || r === 't') ? eo[r] : eo[r][i];
+                    match[2] = val;
+                    se(r, i);
+                    renderBracket();
+                });
+            });
+        }
+        
+        function togglePenal(btn) {
+            var selectDiv = btn.nextElementSibling;
+            selectDiv.classList.toggle('active');
         }
         
         function renderPredicciones() {
@@ -439,7 +526,7 @@
             var h = '<div class="bracket-container">';
             h += '<div class="round"><div class="round-title">Cuartos de Final</div>';
             for (var i = 0; i < 4; i++) {
-                var m = pe[cp].c[i] || ['',''];
+                var m = pe[cp].c[i] || ['','',null];
                 var l = cuartosEquipos[i][0], v = cuartosEquipos[i][1];
                 var bloq = (eo.c[i] && eo.c[i][0] !== '' && eo.c[i][1] !== '');
                 var bc = bloq ? ' blocked' : '', da = bloq ? ' disabled' : '';
@@ -454,17 +541,35 @@
                 h += '<span style="color:var(--gold);font-weight:700;">-</span>';
                 h += '<input type="number" class="score-input prediccion' + bc + '" min="0" max="99" value="' + m[1] + '" data-r="c" data-i="' + i + '" data-t="1" placeholder="-" ' + da + '>';
                 h += '</div>';
+                h += '<button class="penal-btn" onclick="togglePenal(this)"' + (bloq ? ' disabled' : '') + '>⚽ Penales</button>';
+                h += '<div class="penal-select">';
+                h += '<select data-r="c" data-i="' + i + '"' + (bloq ? ' disabled' : '') + '>';
+                h += '<option value="">Seleccionar ganador</option>';
+                h += '<option value="local"' + (m[2] === 'local' ? ' selected' : '') + '>' + l + '</option>';
+                h += '<option value="visitante"' + (m[2] === 'visitante' ? ' selected' : '') + '>' + v + '</option>';
+                h += '</select>';
+                h += '</div>';
                 h += '</div>';
             }
             h += '</div></div>';
             ct.innerHTML = h;
+            
             ct.querySelectorAll('.score-input').forEach(function(inp) {
                 inp.addEventListener('input', function() {
                     if (this.classList.contains('blocked')) return;
                     var r = this.dataset.r, i = parseInt(this.dataset.i), t = parseInt(this.dataset.t);
-                    if (!pe[cp][r]) pe[cp][r] = [];
-                    if (!pe[cp][r][i]) pe[cp][r][i] = ['',''];
-                    pe[cp][r][i][t] = this.value;
+                    var match = pe[cp][r][i];
+                    match[t] = this.value;
+                    spe(cp, r, i);
+                    renderRanking();
+                });
+            });
+            ct.querySelectorAll('.penal-select select').forEach(function(sel) {
+                sel.addEventListener('change', function() {
+                    if (this.disabled) return;
+                    var r = this.dataset.r, i = parseInt(this.dataset.i);
+                    var val = this.value || null;
+                    pe[cp][r][i][2] = val;
                     spe(cp, r, i);
                     renderRanking();
                 });
@@ -478,36 +583,118 @@
             var pts = [];
             for (var pi = 0; pi < 5; pi++) {
                 var puntos = rankingBase[pi] || 0;
+                // Cuartos
                 for (var i = 0; i < 4; i++) {
-                    var of = eo.c[i] || ['',''];
-                    var pr = (pe[pi].c && pe[pi].c[i]) ? pe[pi].c[i] : ['',''];
-                    var gol = parseInt(of[0]), gov = parseInt(of[1]), gpl = parseInt(pr[0]), gpv = parseInt(pr[1]);
-                    if (!isNaN(gol) && !isNaN(gov) && !isNaN(gpl) && !isNaN(gpv)) {
-                        if (gpl === gol && gpv === gov) puntos += 6;
-                        else if ((gol > gov && gpl > gpv) || (gol < gov && gpl < gpv) || (gol === gov && gpl === gpv)) puntos += 3;
+                    var of = eo.c[i] || ['','',null];
+                    var pr = (pe[pi].c && pe[pi].c[i]) ? pe[pi].c[i] : ['','',null];
+                    var golO = parseInt(of[0]), govO = parseInt(of[1]);
+                    var golP = parseInt(pr[0]), govP = parseInt(pr[1]);
+                    if (isNaN(golO) || isNaN(govO) || isNaN(golP) || isNaN(govP)) continue;
+                    
+                    var winnerO = null, winnerP = null;
+                    if (golO !== govO) {
+                        winnerO = golO > govO ? 'local' : 'visitante';
+                        winnerP = golP > govP ? 'local' : 'visitante';
+                    } else {
+                        // empate oficial: se necesita el penal
+                        winnerO = of[2]; // 'local' o 'visitante' o null
+                        // predicción: si el usuario predijo empate, usar su penal; si no, el ganador por goles
+                        if (golP === govP) {
+                            winnerP = pr[2];
+                        } else {
+                            winnerP = golP > govP ? 'local' : 'visitante';
+                        }
+                    }
+                    
+                    if (winnerO && winnerP) {
+                        if (golP === golO && govP === govO && winnerP === winnerO) {
+                            puntos += 6;
+                        } else if (winnerP === winnerO) {
+                            puntos += 3;
+                        }
                     }
                 }
+                // Semis (similar logic, but limited to 2 matches)
                 for (var i = 0; i < 2; i++) {
-                    var of = eo.s[i] || ['',''];
-                    var pr = (pe[pi].s && pe[pi].s[i]) ? pe[pi].s[i] : ['',''];
-                    var gol = parseInt(of[0]), gov = parseInt(of[1]), gpl = parseInt(pr[0]), gpv = parseInt(pr[1]);
-                    if (!isNaN(gol) && !isNaN(gov) && !isNaN(gpl) && !isNaN(gpv)) {
-                        if (gpl === gol && gpv === gov) puntos += 6;
-                        else if ((gol > gov && gpl > gpv) || (gol < gov && gpl < gpv) || (gol === gov && gpl === gpv)) puntos += 3;
+                    var of = eo.s[i] || ['','',null];
+                    var pr = (pe[pi].s && pe[pi].s[i]) ? pe[pi].s[i] : ['','',null];
+                    var golO = parseInt(of[0]), govO = parseInt(of[1]);
+                    var golP = parseInt(pr[0]), govP = parseInt(pr[1]);
+                    if (isNaN(golO) || isNaN(govO) || isNaN(golP) || isNaN(govP)) continue;
+                    
+                    var winnerO = null, winnerP = null;
+                    if (golO !== govO) {
+                        winnerO = golO > govO ? 'local' : 'visitante';
+                        winnerP = golP > govP ? 'local' : 'visitante';
+                    } else {
+                        winnerO = of[2];
+                        if (golP === govP) {
+                            winnerP = pr[2];
+                        } else {
+                            winnerP = golP > govP ? 'local' : 'visitante';
+                        }
+                    }
+                    
+                    if (winnerO && winnerP) {
+                        if (golP === golO && govP === govO && winnerP === winnerO) {
+                            puntos += 6;
+                        } else if (winnerP === winnerO) {
+                            puntos += 3;
+                        }
                     }
                 }
+                // Final
                 if (eo.f[0] !== '' && pe[pi].f[0] !== '') {
-                    var gol = parseInt(eo.f[0]), gov = parseInt(eo.f[1]), gpl = parseInt(pe[pi].f[0]), gpv = parseInt(pe[pi].f[1]);
-                    if (!isNaN(gol) && !isNaN(gov) && !isNaN(gpl) && !isNaN(gpv)) {
-                        if (gpl === gol && gpv === gov) puntos += 6;
-                        else if ((gol > gov && gpl > gpv) || (gol < gov && gpl < gpv) || (gol === gov && gpl === gpv)) puntos += 3;
+                    var of = eo.f, pr = pe[pi].f;
+                    var golO = parseInt(of[0]), govO = parseInt(of[1]);
+                    var golP = parseInt(pr[0]), govP = parseInt(pr[1]);
+                    if (!isNaN(golO) && !isNaN(govO) && !isNaN(golP) && !isNaN(govP)) {
+                        var winnerO = null, winnerP = null;
+                        if (golO !== govO) {
+                            winnerO = golO > govO ? 'local' : 'visitante';
+                            winnerP = golP > govP ? 'local' : 'visitante';
+                        } else {
+                            winnerO = of[2];
+                            if (golP === govP) {
+                                winnerP = pr[2];
+                            } else {
+                                winnerP = golP > govP ? 'local' : 'visitante';
+                            }
+                        }
+                        if (winnerO && winnerP) {
+                            if (golP === golO && govP === govO && winnerP === winnerO) {
+                                puntos += 6;
+                            } else if (winnerP === winnerO) {
+                                puntos += 3;
+                            }
+                        }
                     }
                 }
+                // Tercer lugar (same logic)
                 if (eo.t[0] !== '' && pe[pi].t[0] !== '') {
-                    var gol = parseInt(eo.t[0]), gov = parseInt(eo.t[1]), gpl = parseInt(pe[pi].t[0]), gpv = parseInt(pe[pi].t[1]);
-                    if (!isNaN(gol) && !isNaN(gov) && !isNaN(gpl) && !isNaN(gpv)) {
-                        if (gpl === gol && gpv === gov) puntos += 6;
-                        else if ((gol > gov && gpl > gpv) || (gol < gov && gpl < gpv) || (gol === gov && gpl === gpv)) puntos += 3;
+                    var of = eo.t, pr = pe[pi].t;
+                    var golO = parseInt(of[0]), govO = parseInt(of[1]);
+                    var golP = parseInt(pr[0]), govP = parseInt(pr[1]);
+                    if (!isNaN(golO) && !isNaN(govO) && !isNaN(golP) && !isNaN(govP)) {
+                        var winnerO = null, winnerP = null;
+                        if (golO !== govO) {
+                            winnerO = golO > govO ? 'local' : 'visitante';
+                            winnerP = golP > govP ? 'local' : 'visitante';
+                        } else {
+                            winnerO = of[2];
+                            if (golP === govP) {
+                                winnerP = pr[2];
+                            } else {
+                                winnerP = golP > govP ? 'local' : 'visitante';
+                            }
+                        }
+                        if (winnerO && winnerP) {
+                            if (golP === golO && govP === govO && winnerP === winnerO) {
+                                puntos += 6;
+                            } else if (winnerP === winnerO) {
+                                puntos += 3;
+                            }
+                        }
                     }
                 }
                 pts.push({nombre: players[pi], puntos: puntos, index: pi});
@@ -516,7 +703,7 @@
             
             var maxPts = pts[0].puntos || 1;
             var h = '<div class="ranking-title">RANKING</div>';
-            h += '<div class="ranking-subtitle">6 pts = Marcador exacto | 3 pts = Acertar resultado</div>';
+            h += '<div class="ranking-subtitle">6 pts = Marcador exacto + ganador | 3 pts = Acertar ganador</div>';
             
             for (var i = 0; i < 5; i++) {
                 var p = pts[i];
@@ -533,7 +720,6 @@
             }
             ct.innerHTML = h;
             
-            // Animación de puntos al cambiar
             var pointsElements = ct.querySelectorAll('.rank-pts');
             pointsElements.forEach(function(el) {
                 el.classList.add('pulse');
@@ -542,8 +728,8 @@
         }
         
         function guardar() {
-            db.ref('eo20').set(eo);
-            db.ref('pe20').set(pe);
+            db.ref('eo21').set(eo);
+            db.ref('pe21').set(pe);
             toast('✅ Cambios guardados en Firebase');
         }
         function cargar() {
