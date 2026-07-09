@@ -14,6 +14,7 @@
         :root {
             --bg: #060912;
             --card: rgba(18, 22, 45, 0.85);
+            --card-premium: rgba(25, 30, 55, 0.9);
             --gold: #C9A84C;
             --text: #E8EAF0;
             --text-secondary: #9DA0B5;
@@ -76,89 +77,65 @@
         .nav-tab.active { background: var(--gold); color: #000; font-weight: 700; box-shadow: 0 4px 15px rgba(201, 168, 76, 0.4); }
         .section { display: none; }
         .section.active { display: block; }
-        .bracket-section { display: flex; flex-direction: column; gap: 12px; }
-
-        /* Nuevo diseño de tarjetas */
-        .ronda-card {
-            background: var(--card);
-            border-radius: var(--radius);
-            padding: 14px;
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow);
+        .action-bar { display: flex; gap: 6px; justify-content: center; margin: 10px 0; }
+        .btn {
+            padding: 10px 16px; cursor: pointer; font-family: 'Outfit', sans-serif;
+            font-size: 0.8rem; font-weight: 600; border: 2px solid; border-radius: 25px;
+            color: #fff; background: transparent;
         }
-        .ronda-header {
+        .btn-save { background: rgba(0, 200, 83, 0.15); border-color: rgba(0, 200, 83, 0.4); color: #00C853; }
+        .btn-load { background: rgba(77, 126, 198, 0.15); border-color: rgba(77, 126, 198, 0.4); color: #4d7ec6; }
+
+        /* Bracket con conectores */
+        .bracket-container { display: flex; flex-direction: column; align-items: center; gap: 0; }
+        .round { width: 100%; max-width: 400px; display: flex; flex-direction: column; align-items: center; }
+        .round-title {
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 1rem;
-            text-align: center;
-            color: var(--gold);
-            margin-bottom: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
+            font-size: 1rem; color: var(--gold); margin: 10px 0 6px; text-transform: uppercase; letter-spacing: 1px;
         }
         .match-card {
-            background: rgba(255, 255, 255, 0.02);
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 8px;
-            border: 1px solid transparent;
-            transition: border-color 0.2s;
+            width: 100%; background: var(--card-premium);
+            border-radius: 14px; padding: 14px; margin-bottom: 4px;
+            border: 1px solid transparent; transition: border-color 0.3s, box-shadow 0.3s;
+            box-shadow: var(--shadow);
+            position: relative;
         }
-        .match-card:hover { border-color: var(--border-active); }
+        .match-card.has-result { border-color: var(--border-active); }
         .match-teams {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-            margin-bottom: 8px;
+            display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 8px;
         }
         .team-block {
-            flex: 1;
-            text-align: center;
+            flex: 1; display: flex; align-items: center; gap: 4px;
         }
-        .team-block.right { text-align: right; }
+        .team-block.right { justify-content: flex-end; text-align: right; }
         .team-block.left { text-align: left; }
-        .team-flag { width: 24px; height: 16px; object-fit: cover; border-radius: 2px; vertical-align: middle; }
-        .team-name { font-weight: 600; font-size: 0.9rem; margin: 0 4px; }
-        .vs-divider {
-            color: var(--gold);
-            font-weight: 700;
-            font-size: 0.8rem;
-            flex-shrink: 0;
-        }
-        .score-row {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
+        .team-flag { width: 24px; height: 16px; object-fit: cover; border-radius: 2px; }
+        .team-name { font-weight: 600; font-size: 0.9rem; }
+        .team-name.winner { color: var(--gold); font-weight: 700; }
+        .winner-star { color: var(--gold); margin-left: 4px; font-size: 0.8rem; display: none; }
+        .match-card.has-result .winner-star { display: inline; }
+        .vs-badge { color: var(--gold); font-weight: 700; font-size: 0.8rem; flex-shrink: 0; }
+        .score-row { display: flex; align-items: center; justify-content: center; gap: 8px; }
         .score-input {
-            width: 48px;
-            height: 48px;
-            padding: 4px;
-            text-align: center;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            color: #fff;
-            font-weight: 700;
-            font-size: 1.1rem;
-            font-family: 'Space Grotesk', sans-serif;
-            -webkit-appearance: none;
+            width: 46px; height: 46px; padding: 4px; text-align: center;
+            background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border);
+            border-radius: 10px; color: #fff; font-weight: 700; font-size: 1rem;
+            font-family: 'Space Grotesk', sans-serif; -webkit-appearance: none;
         }
         .score-input.oficial { border-color: rgba(201, 168, 76, 0.5); background: rgba(201, 168, 76, 0.08); color: var(--gold); }
         .score-input.prediccion { border-color: rgba(0, 180, 179, 0.5); }
         .score-input.blocked { background: #1a1a1a !important; color: #444 !important; pointer-events: none; }
 
-        /* Conexiones visuales entre rondas */
-        .arrow-down {
-            text-align: center;
-            font-size: 1.5rem;
-            color: var(--gold);
-            margin: -6px 0;
+        /* Conectores entre rondas */
+        .connector {
+            width: 2px; height: 20px; background: var(--border-active); margin: 0 auto;
+        }
+        .connector-horizontal {
+            height: 2px; width: 40%; background: var(--border-active); margin: 0 auto;
         }
 
         .ranking-card {
-            background: var(--card);
+            background: var(--card-premium);
             border-radius: var(--radius);
             padding: 20px;
             border: 1px solid var(--border);
@@ -176,20 +153,15 @@
         .rank-pts {
             font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.1rem;
             background: rgba(201, 168, 76, 0.1); padding: 6px 14px; border-radius: 20px; color: var(--gold);
+            transition: transform 0.3s ease;
         }
+        .rank-pts.pulse { transform: scale(1.2); }
         .rank-bar { height: 5px; background: rgba(255, 255, 255, 0.04); border-radius: 3px; margin-top: 4px; overflow: hidden; }
         .rank-fill { height: 100%; border-radius: 3px; transition: width 0.8s ease; }
-        .action-bar { display: flex; gap: 6px; justify-content: center; margin: 10px 0; }
-        .btn {
-            padding: 10px 16px; cursor: pointer; font-family: 'Outfit', sans-serif;
-            font-size: 0.8rem; font-weight: 600; border: 2px solid; border-radius: 25px;
-            color: #fff; background: transparent;
-        }
-        .btn-save { background: rgba(0, 200, 83, 0.15); border-color: rgba(0, 200, 83, 0.4); color: #00C853; }
-        .btn-load { background: rgba(77, 126, 198, 0.15); border-color: rgba(77, 126, 198, 0.4); color: #4d7ec6; }
+
         .toast {
             position: fixed; top: 16px; right: 16px;
-            background: var(--card); border: 1px solid var(--gold);
+            background: var(--card-premium); border: 1px solid var(--gold);
             padding: 12px 18px; border-radius: 12px; color: #fff;
             z-index: 9999; transform: translateX(120%); transition: transform 0.35s;
             font-size: 0.75rem;
@@ -222,14 +194,14 @@
         </div>
         
         <div class="section active" id="sec-bracket">
-            <div class="bracket-section" id="bracketOficial"></div>
+            <div id="bracketOficial"></div>
         </div>
         
         <div class="section" id="sec-predicciones">
             <div style="text-align:center;margin-bottom:10px;color:var(--text-secondary);font-size:0.8rem;">
                 Jugador: <strong id="predPlayerName" style="color:var(--gold);">Chonco</strong>
             </div>
-            <div class="bracket-section" id="bracketPred"></div>
+            <div id="bracketPred"></div>
         </div>
         
         <div class="section" id="sec-ranking">
@@ -249,8 +221,7 @@
         var players = ['Chonco', 'Oscarito', 'Allens', 'Tony', 'Alets'];
         var playerColors = ['#E4002B', '#4d7ec6', '#E81F76', '#FF6D00', '#7C3AED'];
         var cp = 0, cs = 'bracket';
-        // Puntos base actualizados al 9 de julio
-        var rankingBase = {0: 195, 1: 153, 2: 216, 3: 177, 4: 201}; // Chonco, Oscarito, Allens, Tony, Alets
+        var rankingBase = {0: 195, 1: 153, 2: 216, 3: 177, 4: 201};
         
         var cc = {
             'Francia':'fr','Marruecos':'ma','España':'es','Bélgica':'be',
@@ -258,15 +229,12 @@
         };
         function gf(p) { return 'https://flagcdn.com/w320/' + (cc[p] || 'xx') + '.png'; }
         
-        // Cuartos de final
         var cuartosEquipos = [
             ['Francia','Marruecos'],
             ['España','Bélgica'],
             ['Noruega','Inglaterra'],
             ['Argentina','Suiza']
         ];
-        
-        // Emparejamientos de semis: [ganador cuartos 0 vs ganador cuartos 3, ganador cuartos 1 vs ganador cuartos 2]
         var semisPairings = [[0,3],[1,2]];
         
         var eo = {c:[], s:[], f:['',''], t:['','']};
@@ -280,7 +248,7 @@
         initArrays();
         
         function sync() {
-            db.ref('eo19').on('value', function(s) {
+            db.ref('eo20').on('value', function(s) {
                 var d = s.val();
                 if (d) {
                     ['c','s'].forEach(function(r) {
@@ -299,7 +267,7 @@
                 }
                 render();
             });
-            db.ref('pe19').on('value', function(s) {
+            db.ref('pe20').on('value', function(s) {
                 var d = s.val();
                 if (d) {
                     for (var p = 0; p < 5; p++) {
@@ -325,8 +293,8 @@
             });
         }
         
-        function se(r, i) { db.ref('eo19/' + r + '/' + i).set({0: eo[r][i][0], 1: eo[r][i][1]}); }
-        function spe(p, r, i) { db.ref('pe19/' + p + '/' + r + '/' + i).set({0: pe[p][r][i][0], 1: pe[p][r][i][1]}); }
+        function se(r, i) { db.ref('eo20/' + r + '/' + i).set({0: eo[r][i][0], 1: eo[r][i][1]}); }
+        function spe(p, r, i) { db.ref('pe20/' + p + '/' + r + '/' + i).set({0: pe[p][r][i][0], 1: pe[p][r][i][1]}); }
         
         function obtenerGanador(m) {
             var gl = parseInt(m[0]), gv = parseInt(m[1]);
@@ -345,18 +313,29 @@
         function renderBracket() {
             var ct = document.getElementById('bracketOficial');
             if (!ct) return;
-            var h = '';
+            var h = '<div class="bracket-container">';
             
-            // Cuartos de final
-            h += '<div class="ronda-card"><div class="ronda-header">Cuartos de Final</div>';
+            // Cuartos
+            h += '<div class="round"><div class="round-title">Cuartos de Final</div>';
             for (var i = 0; i < 4; i++) {
                 var m = eo.c[i] || ['',''];
                 var l = cuartosEquipos[i][0], v = cuartosEquipos[i][1];
-                h += '<div class="match-card">';
+                var hasResult = (m[0] !== '' && m[1] !== '');
+                var cardClass = hasResult ? ' has-result' : '';
+                var win = hasResult ? obtenerGanador(m) : null;
+                h += '<div class="match-card' + cardClass + '">';
                 h += '<div class="match-teams">';
-                h += '<div class="team-block right"><img class="team-flag" src="' + gf(l) + '" alt=""> <span class="team-name">' + l + '</span></div>';
-                h += '<div class="vs-divider">vs</div>';
-                h += '<div class="team-block left"><img class="team-flag" src="' + gf(v) + '" alt=""> <span class="team-name">' + v + '</span></div>';
+                h += '<div class="team-block right">';
+                h += '<img class="team-flag" src="' + gf(l) + '" alt="">';
+                h += '<span class="team-name' + (win === 'local' ? ' winner' : '') + '">' + l + '</span>';
+                h += '<span class="winner-star">⭐</span>';
+                h += '</div>';
+                h += '<div class="vs-badge">vs</div>';
+                h += '<div class="team-block left">';
+                h += '<span class="winner-star">⭐</span>';
+                h += '<span class="team-name' + (win === 'visitante' ? ' winner' : '') + '">' + v + '</span>';
+                h += '<img class="team-flag" src="' + gf(v) + '" alt="">';
+                h += '</div>';
                 h += '</div>';
                 h += '<div class="score-row">';
                 h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + m[0] + '" data-r="c" data-i="' + i + '" data-t="0" placeholder="-">';
@@ -367,8 +346,15 @@
             }
             h += '</div>';
             
+            // Conectores a semis
+            h += '<div style="display:flex; justify-content:center; gap:0;">';
+            h += '<div style="display:flex; flex-direction:column; align-items:center;">';
+            h += '<div class="connector"></div>';
+            h += '</div>';
+            h += '</div>';
+            
             // Semifinales
-            h += '<div class="ronda-card"><div class="ronda-header">Semifinales</div>';
+            h += '<div class="round"><div class="round-title">Semifinales</div>';
             for (var i = 0; i < 2; i++) {
                 var m = eo.s[i] || ['',''];
                 var idx1 = semisPairings[i][0], idx2 = semisPairings[i][1];
@@ -385,7 +371,7 @@
                 h += '<div class="match-card">';
                 h += '<div class="match-teams">';
                 h += '<div class="team-block right"><span class="team-name">' + eq1 + '</span></div>';
-                h += '<div class="vs-divider">vs</div>';
+                h += '<div class="vs-badge">vs</div>';
                 h += '<div class="team-block left"><span class="team-name">' + eq2 + '</span></div>';
                 h += '</div>';
                 h += '<div class="score-row">';
@@ -397,24 +383,17 @@
             }
             h += '</div>';
             
+            // Conectores a final
+            h += '<div style="display:flex; justify-content:center;"><div class="connector"></div></div>';
+            
             // Final
-            h += '<div class="ronda-card"><div class="ronda-header">Final</div>';
+            h += '<div class="round"><div class="round-title">Final</div>';
             var mf = eo.f || ['',''];
-            var p1 = eo.s[0], p2 = eo.s[1];
-            var eq1 = '?', eq2 = '?';
-            if (p1 && p1[0] !== '' && p1[1] !== '') {
-                var g = obtenerGanador(p1);
-                eq1 = 'Ganador Semifinal 1';
-            }
-            if (p2 && p2[0] !== '' && p2[1] !== '') {
-                var g = obtenerGanador(p2);
-                eq2 = 'Ganador Semifinal 2';
-            }
             h += '<div class="match-card">';
             h += '<div class="match-teams">';
-            h += '<div class="team-block right"><span class="team-name">' + eq1 + '</span></div>';
-            h += '<div class="vs-divider">vs</div>';
-            h += '<div class="team-block left"><span class="team-name">' + eq2 + '</span></div>';
+            h += '<div class="team-block right"><span class="team-name">Ganador S1</span></div>';
+            h += '<div class="vs-badge">vs</div>';
+            h += '<div class="team-block left"><span class="team-name">Ganador S2</span></div>';
             h += '</div>';
             h += '<div class="score-row">';
             h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + mf[0] + '" data-r="f" data-i="0" data-t="0" placeholder="-">';
@@ -424,13 +403,13 @@
             h += '</div></div>';
             
             // Tercer lugar
-            h += '<div class="ronda-card"><div class="ronda-header">3er Lugar</div>';
+            h += '<div class="round"><div class="round-title">3er Lugar</div>';
             var mt = eo.t || ['',''];
             h += '<div class="match-card">';
             h += '<div class="match-teams">';
-            h += '<div class="team-block right"><span class="team-name">Perdedor Semifinal 1</span></div>';
-            h += '<div class="vs-divider">vs</div>';
-            h += '<div class="team-block left"><span class="team-name">Perdedor Semifinal 2</span></div>';
+            h += '<div class="team-block right"><span class="team-name">Perdedor S1</span></div>';
+            h += '<div class="vs-badge">vs</div>';
+            h += '<div class="team-block left"><span class="team-name">Perdedor S2</span></div>';
             h += '</div>';
             h += '<div class="score-row">';
             h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + mt[0] + '" data-r="t" data-i="0" data-t="0" placeholder="-">';
@@ -439,6 +418,7 @@
             h += '</div>';
             h += '</div></div>';
             
+            h += '</div>';
             ct.innerHTML = h;
             
             ct.querySelectorAll('.score-input').forEach(function(inp) {
@@ -456,9 +436,8 @@
         function renderPredicciones() {
             var ct = document.getElementById('bracketPred');
             if (!ct) return;
-            var h = '';
-            
-            h += '<div class="ronda-card"><div class="ronda-header">Cuartos de Final</div>';
+            var h = '<div class="bracket-container">';
+            h += '<div class="round"><div class="round-title">Cuartos de Final</div>';
             for (var i = 0; i < 4; i++) {
                 var m = pe[cp].c[i] || ['',''];
                 var l = cuartosEquipos[i][0], v = cuartosEquipos[i][1];
@@ -466,9 +445,9 @@
                 var bc = bloq ? ' blocked' : '', da = bloq ? ' disabled' : '';
                 h += '<div class="match-card">';
                 h += '<div class="match-teams">';
-                h += '<div class="team-block right"><img class="team-flag" src="' + gf(l) + '" alt=""> <span class="team-name">' + l + '</span></div>';
-                h += '<div class="vs-divider">vs</div>';
-                h += '<div class="team-block left"><img class="team-flag" src="' + gf(v) + '" alt=""> <span class="team-name">' + v + '</span></div>';
+                h += '<div class="team-block right"><img class="team-flag" src="' + gf(l) + '" alt=""><span class="team-name">' + l + '</span></div>';
+                h += '<div class="vs-badge">vs</div>';
+                h += '<div class="team-block left"><span class="team-name">' + v + '</span><img class="team-flag" src="' + gf(v) + '" alt=""></div>';
                 h += '</div>';
                 h += '<div class="score-row">';
                 h += '<input type="number" class="score-input prediccion' + bc + '" min="0" max="99" value="' + m[0] + '" data-r="c" data-i="' + i + '" data-t="0" placeholder="-" ' + da + '>';
@@ -477,8 +456,7 @@
                 h += '</div>';
                 h += '</div>';
             }
-            h += '</div>';
-            
+            h += '</div></div>';
             ct.innerHTML = h;
             ct.querySelectorAll('.score-input').forEach(function(inp) {
                 inp.addEventListener('input', function() {
@@ -500,7 +478,6 @@
             var pts = [];
             for (var pi = 0; pi < 5; pi++) {
                 var puntos = rankingBase[pi] || 0;
-                // Cuartos
                 for (var i = 0; i < 4; i++) {
                     var of = eo.c[i] || ['',''];
                     var pr = (pe[pi].c && pe[pi].c[i]) ? pe[pi].c[i] : ['',''];
@@ -510,7 +487,6 @@
                         else if ((gol > gov && gpl > gpv) || (gol < gov && gpl < gpv) || (gol === gov && gpl === gpv)) puntos += 3;
                     }
                 }
-                // Semis, final, tercer lugar (si existen)
                 for (var i = 0; i < 2; i++) {
                     var of = eo.s[i] || ['',''];
                     var pr = (pe[pi].s && pe[pi].s[i]) ? pe[pi].s[i] : ['',''];
@@ -552,15 +528,22 @@
                 h += '<div class="rank-name" style="color:' + playerColors[p.index] + '">' + p.nombre + '</div>';
                 h += '<div class="rank-bar"><div class="rank-fill" style="width:' + porcentaje + '%;background:' + playerColors[p.index] + '"></div></div>';
                 h += '</div>';
-                h += '<div class="rank-pts">' + p.puntos + ' pts</div>';
+                h += '<div class="rank-pts" id="pts-' + p.index + '">' + p.puntos + ' pts</div>';
                 h += '</div>';
             }
             ct.innerHTML = h;
+            
+            // Animación de puntos al cambiar
+            var pointsElements = ct.querySelectorAll('.rank-pts');
+            pointsElements.forEach(function(el) {
+                el.classList.add('pulse');
+                setTimeout(function() { el.classList.remove('pulse'); }, 300);
+            });
         }
         
         function guardar() {
-            db.ref('eo19').set(eo);
-            db.ref('pe19').set(pe);
+            db.ref('eo20').set(eo);
+            db.ref('pe20').set(pe);
             toast('✅ Cambios guardados en Firebase');
         }
         function cargar() {
