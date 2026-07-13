@@ -137,6 +137,7 @@
 
         .connector { width: 2px; height: 20px; background: var(--border-active); margin: 0 auto; }
 
+        /* RANKING INTERACTIVO */
         .ranking-card {
             background: var(--card-premium);
             border-radius: var(--radius);
@@ -149,9 +150,17 @@
         .rank-item {
             display: flex; align-items: center; padding: 12px 14px; margin-bottom: 6px;
             background: rgba(255, 255, 255, 0.015); border-radius: 12px; gap: 12px;
+            cursor: pointer; transition: background 0.2s;
         }
-        .rank-pos { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 800; width: 36px; text-align: center; }
-        .rank-pos.gold { color: #FFD700; } .rank-pos.silver { color: #C0C0C0; } .rank-pos.bronze { color: #CD7F32; }
+        .rank-item:hover { background: rgba(255, 255, 255, 0.04); }
+        .rank-pos {
+            font-family: 'Space Grotesk', sans-serif; font-size: 1.4rem; font-weight: 800;
+            width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; background: rgba(255,255,255,0.03);
+        }
+        .rank-pos.gold { color: #FFD700; background: rgba(255,215,0,0.1); box-shadow: 0 0 15px rgba(255,215,0,0.2); }
+        .rank-pos.silver { color: #C0C0C0; background: rgba(192,192,192,0.1); box-shadow: 0 0 12px rgba(192,192,192,0.15); }
+        .rank-pos.bronze { color: #CD7F32; background: rgba(205,127,50,0.1); box-shadow: 0 0 10px rgba(205,127,50,0.15); }
         .rank-name { flex: 1; font-weight: 600; font-size: 0.95rem; }
         .rank-pts {
             font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.1rem;
@@ -161,6 +170,8 @@
         .rank-pts.pulse { transform: scale(1.2); }
         .rank-bar { height: 5px; background: rgba(255, 255, 255, 0.04); border-radius: 3px; margin-top: 4px; overflow: hidden; }
         .rank-fill { height: 100%; border-radius: 3px; transition: width 0.8s ease; }
+        .rank-details { display: none; padding: 8px 0 0 56px; font-size: 0.7rem; color: var(--text-secondary); }
+        .rank-item.expanded .rank-details { display: block; }
 
         .toast {
             position: fixed; top: 16px; right: 16px;
@@ -224,40 +235,33 @@
         var players = ['Chonco', 'Oscarito', 'Allens', 'Tony', 'Alets'];
         var playerColors = ['#E4002B', '#4d7ec6', '#E81F76', '#FF6D00', '#7C3AED'];
         var cp = 0, cs = 'bracket';
-        var rankingBase = {0: 195, 1: 153, 2: 216, 3: 177, 4: 201};
+        var rankingBase = {0: 207, 1: 162, 2: 222, 3: 180, 4: 213};
         
         var cc = {
-            'Francia':'fr','Marruecos':'ma','España':'es','Bélgica':'be',
-            'Noruega':'no','Inglaterra':'gb-eng','Argentina':'ar','Suiza':'ch'
+            'Francia':'fr','España':'es','Inglaterra':'gb-eng','Argentina':'ar'
         };
         function gf(p) { return 'https://flagcdn.com/w320/' + (cc[p] || 'xx') + '.png'; }
         
-        var cuartosEquipos = [
-            ['Francia','Marruecos'],
-            ['España','Bélgica'],
-            ['Noruega','Inglaterra'],
-            ['Argentina','Suiza']
+        // Semifinales
+        var semisEquipos = [
+            ['Francia','España'],
+            ['Inglaterra','Argentina']
         ];
-        var semisPairings = [[0,3],[1,2]];
         
-        // Estructura de datos: {c: [[goles, goles, penal]], s: [...], f: [...], t: [...]}
-        var eo = {c:[], s:[], f:[null,null,null], t:[null,null,null]};
+        var eo = {s:[], f:[null,null,null], t:[null,null,null]};
         var pe = {};
-        for (var p = 0; p < 5; p++) {
-            pe[p] = {c:[], s:[], f:[null,null,null], t:[null,null,null]};
-        }
+        for (var p = 0; p < 5; p++) { pe[p] = {s:[], f:[null,null,null], t:[null,null,null]}; }
         
         function initArrays() {
-            for (var i = 0; i < 4; i++) { eo.c[i] = ['','',null]; for (var p = 0; p < 5; p++) pe[p].c[i] = ['','',null]; }
             for (var i = 0; i < 2; i++) { eo.s[i] = ['','',null]; for (var p = 0; p < 5; p++) pe[p].s[i] = ['','',null]; }
         }
         initArrays();
         
         function sync() {
-            db.ref('eo21').on('value', function(s) {
+            db.ref('eo22').on('value', function(s) {
                 var d = s.val();
                 if (d) {
-                    ['c','s','f','t'].forEach(function(r) {
+                    ['s','f','t'].forEach(function(r) {
                         if (d[r]) {
                             if (r === 'f' || r === 't') {
                                 eo[r] = d[r] || [null,null,null];
@@ -276,13 +280,13 @@
                 }
                 render();
             });
-            db.ref('pe21').on('value', function(s) {
+            db.ref('pe22').on('value', function(s) {
                 var d = s.val();
                 if (d) {
                     for (var p = 0; p < 5; p++) {
-                        if (!pe[p]) pe[p] = {c:[], s:[], f:[null,null,null], t:[null,null,null]};
+                        if (!pe[p]) pe[p] = {s:[], f:[null,null,null], t:[null,null,null]};
                         if (d[p]) {
-                            ['c','s','f','t'].forEach(function(r) {
+                            ['s','f','t'].forEach(function(r) {
                                 if (d[p][r]) {
                                     if (r === 'f' || r === 't') {
                                         pe[p][r] = d[p][r] || [null,null,null];
@@ -307,11 +311,11 @@
         
         function se(r, i) {
             var data = (r === 'f' || r === 't') ? eo[r] : eo[r][i];
-            db.ref('eo21/' + r + (i !== undefined ? '/' + i : '')).set(data);
+            db.ref('eo22/' + r + (i !== undefined ? '/' + i : '')).set(data);
         }
         function spe(p, r, i) {
             var data = (r === 'f' || r === 't') ? pe[p][r] : pe[p][r][i];
-            db.ref('pe21/' + p + '/' + r + (i !== undefined ? '/' + i : '')).set(data);
+            db.ref('pe22/' + p + '/' + r + (i !== undefined ? '/' + i : '')).set(data);
         }
         
         function obtenerGanador(m) {
@@ -319,9 +323,17 @@
             if (isNaN(gl) || isNaN(gv)) return null;
             if (gl > gv) return 'local';
             if (gv > gl) return 'visitante';
-            // empate
-            if (m[2]) return m[2]; // 'local' o 'visitante'
-            return null; // necesita penales
+            if (m[2]) return m[2];
+            return null;
+        }
+        
+        function semisCompletas() {
+            for (var i = 0; i < 2; i++) {
+                var m = eo.s[i] || ['','',null];
+                if (m[0] === '' || m[1] === '') return false;
+                if (m[0] === m[1] && !m[2]) return false;
+            }
+            return true;
         }
         
         function render() {
@@ -335,12 +347,12 @@
             if (!ct) return;
             var h = '<div class="bracket-container">';
             
-            // Cuartos
-            h += '<div class="round"><div class="round-title">Cuartos de Final</div>';
-            for (var i = 0; i < 4; i++) {
-                var m = eo.c[i] || ['','',null];
-                var l = cuartosEquipos[i][0], v = cuartosEquipos[i][1];
-                var hasResult = (m[0] !== '' && m[1] !== '');
+            // Semifinales
+            h += '<div class="round"><div class="round-title">Semifinales</div>';
+            for (var i = 0; i < 2; i++) {
+                var m = eo.s[i] || ['','',null];
+                var l = semisEquipos[i][0], v = semisEquipos[i][1];
+                var hasResult = (m[0] !== '' && m[1] !== '' && (m[0] !== m[1] || m[2]));
                 var cardClass = hasResult ? ' has-result' : '';
                 var win = hasResult ? obtenerGanador(m) : null;
                 h += '<div class="match-card' + cardClass + '">';
@@ -358,48 +370,6 @@
                 h += '</div>';
                 h += '</div>';
                 h += '<div class="score-row">';
-                h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + m[0] + '" data-r="c" data-i="' + i + '" data-t="0" placeholder="-">';
-                h += '<span style="color:var(--gold);font-weight:700;">-</span>';
-                h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + m[1] + '" data-r="c" data-i="' + i + '" data-t="1" placeholder="-">';
-                h += '</div>';
-                h += '<button class="penal-btn" onclick="togglePenal(this)">⚽ Penales</button>';
-                h += '<div class="penal-select">';
-                h += '<select data-r="c" data-i="' + i + '">';
-                h += '<option value="">Seleccionar ganador</option>';
-                h += '<option value="local"' + (m[2] === 'local' ? ' selected' : '') + '>' + l + '</option>';
-                h += '<option value="visitante"' + (m[2] === 'visitante' ? ' selected' : '') + '>' + v + '</option>';
-                h += '</select>';
-                h += '</div>';
-                h += '</div>';
-            }
-            h += '</div>';
-            
-            h += '<div style="display:flex; justify-content:center;"><div class="connector"></div></div>';
-            
-            // Semifinales
-            h += '<div class="round"><div class="round-title">Semifinales</div>';
-            for (var i = 0; i < 2; i++) {
-                var m = eo.s[i] || ['','',null];
-                var idx1 = semisPairings[i][0], idx2 = semisPairings[i][1];
-                var p1 = eo.c[idx1], p2 = eo.c[idx2];
-                var eq1 = '?', eq2 = '?';
-                if (p1 && p1[0] !== '' && p1[1] !== '') {
-                    var g = obtenerGanador(p1);
-                    if (g === 'local') eq1 = cuartosEquipos[idx1][0];
-                    else if (g === 'visitante') eq1 = cuartosEquipos[idx1][1];
-                }
-                if (p2 && p2[0] !== '' && p2[1] !== '') {
-                    var g = obtenerGanador(p2);
-                    if (g === 'local') eq2 = cuartosEquipos[idx2][0];
-                    else if (g === 'visitante') eq2 = cuartosEquipos[idx2][1];
-                }
-                h += '<div class="match-card">';
-                h += '<div class="match-teams">';
-                h += '<div class="team-block right"><span class="team-name">' + eq1 + '</span></div>';
-                h += '<div class="vs-badge">vs</div>';
-                h += '<div class="team-block left"><span class="team-name">' + eq2 + '</span></div>';
-                h += '</div>';
-                h += '<div class="score-row">';
                 h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + m[0] + '" data-r="s" data-i="' + i + '" data-t="0" placeholder="-">';
                 h += '<span style="color:var(--gold);font-weight:700;">-</span>';
                 h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + m[1] + '" data-r="s" data-i="' + i + '" data-t="1" placeholder="-">';
@@ -408,8 +378,8 @@
                 h += '<div class="penal-select">';
                 h += '<select data-r="s" data-i="' + i + '">';
                 h += '<option value="">Seleccionar ganador</option>';
-                h += '<option value="local"' + (m[2] === 'local' ? ' selected' : '') + '>' + eq1 + '</option>';
-                h += '<option value="visitante"' + (m[2] === 'visitante' ? ' selected' : '') + '>' + eq2 + '</option>';
+                h += '<option value="local"' + (m[2] === 'local' ? ' selected' : '') + '>' + l + '</option>';
+                h += '<option value="visitante"' + (m[2] === 'visitante' ? ' selected' : '') + '>' + v + '</option>';
                 h += '</select>';
                 h += '</div>';
                 h += '</div>';
@@ -423,16 +393,12 @@
             var mf = eo.f || ['','',null];
             var s1 = eo.s[0], s2 = eo.s[1];
             var final1 = '?', final2 = '?';
-            if (s1 && s1[0] !== '' && s1[1] !== '') {
-                var g = obtenerGanador(s1);
-                final1 = g === 'local' ? 'Ganador Semifinal 1' : g === 'visitante' ? 'Ganador Semifinal 1' : '?';
-                // Use actual team names if available from quarters
-                // but since semis have generic names, we keep generic
+            if (semisCompletas()) {
+                var g1 = obtenerGanador(s1), g2 = obtenerGanador(s2);
+                final1 = g1 === 'local' ? semisEquipos[0][0] : semisEquipos[0][1];
+                final2 = g2 === 'local' ? semisEquipos[1][0] : semisEquipos[1][1];
             }
-            if (s2 && s2[0] !== '' && s2[1] !== '') {
-                var g = obtenerGanador(s2);
-                final2 = g === 'local' ? 'Ganador Semifinal 2' : g === 'visitante' ? 'Ganador Semifinal 2' : '?';
-            }
+            var finalBloqueada = !semisCompletas();
             h += '<div class="match-card">';
             h += '<div class="match-teams">';
             h += '<div class="team-block right"><span class="team-name">' + final1 + '</span></div>';
@@ -440,13 +406,13 @@
             h += '<div class="team-block left"><span class="team-name">' + final2 + '</span></div>';
             h += '</div>';
             h += '<div class="score-row">';
-            h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + mf[0] + '" data-r="f" data-i="0" data-t="0" placeholder="-">';
+            h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + mf[0] + '" data-r="f" data-i="0" data-t="0" placeholder="-" ' + (finalBloqueada ? ' disabled' : '') + '>';
             h += '<span style="color:var(--gold);font-weight:700;">-</span>';
-            h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + mf[1] + '" data-r="f" data-i="0" data-t="1" placeholder="-">';
+            h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + mf[1] + '" data-r="f" data-i="0" data-t="1" placeholder="-" ' + (finalBloqueada ? ' disabled' : '') + '>';
             h += '</div>';
-            h += '<button class="penal-btn" onclick="togglePenal(this)">⚽ Penales</button>';
+            h += '<button class="penal-btn" onclick="togglePenal(this)"' + (finalBloqueada ? ' disabled' : '') + '>⚽ Penales</button>';
             h += '<div class="penal-select">';
-            h += '<select data-r="f" data-i="0">';
+            h += '<select data-r="f" data-i="0"' + (finalBloqueada ? ' disabled' : '') + '>';
             h += '<option value="">Seleccionar ganador</option>';
             h += '<option value="local"' + (mf[2] === 'local' ? ' selected' : '') + '>' + final1 + '</option>';
             h += '<option value="visitante"' + (mf[2] === 'visitante' ? ' selected' : '') + '>' + final2 + '</option>';
@@ -457,15 +423,11 @@
             // Tercer lugar
             h += '<div class="round"><div class="round-title">3er Lugar</div>';
             var mt = eo.t || ['','',null];
-            var perdedor1 = 'Perdedor Semifinal 1', perdedor2 = 'Perdedor Semifinal 2';
-            // Determine losers from semis
-            if (s1 && s1[0] !== '' && s1[1] !== '') {
-                var g = obtenerGanador(s1);
-                perdedor1 = g === 'local' ? 'Perdedor Semifinal 1' : 'Perdedor Semifinal 1'; // keep generic for simplicity
-            }
-            if (s2 && s2[0] !== '' && s2[1] !== '') {
-                var g = obtenerGanador(s2);
-                perdedor2 = g === 'local' ? 'Perdedor Semifinal 2' : 'Perdedor Semifinal 2';
+            var perdedor1 = '?', perdedor2 = '?';
+            if (semisCompletas()) {
+                var g1 = obtenerGanador(s1), g2 = obtenerGanador(s2);
+                perdedor1 = g1 === 'local' ? semisEquipos[0][1] : semisEquipos[0][0];
+                perdedor2 = g2 === 'local' ? semisEquipos[1][1] : semisEquipos[1][0];
             }
             h += '<div class="match-card">';
             h += '<div class="match-teams">';
@@ -474,13 +436,13 @@
             h += '<div class="team-block left"><span class="team-name">' + perdedor2 + '</span></div>';
             h += '</div>';
             h += '<div class="score-row">';
-            h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + mt[0] + '" data-r="t" data-i="0" data-t="0" placeholder="-">';
+            h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + mt[0] + '" data-r="t" data-i="0" data-t="0" placeholder="-" ' + (finalBloqueada ? ' disabled' : '') + '>';
             h += '<span style="color:var(--gold);font-weight:700;">-</span>';
-            h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + mt[1] + '" data-r="t" data-i="0" data-t="1" placeholder="-">';
+            h += '<input type="number" class="score-input oficial" min="0" max="99" value="' + mt[1] + '" data-r="t" data-i="0" data-t="1" placeholder="-" ' + (finalBloqueada ? ' disabled' : '') + '>';
             h += '</div>';
-            h += '<button class="penal-btn" onclick="togglePenal(this)">⚽ Penales</button>';
+            h += '<button class="penal-btn" onclick="togglePenal(this)"' + (finalBloqueada ? ' disabled' : '') + '>⚽ Penales</button>';
             h += '<div class="penal-select">';
-            h += '<select data-r="t" data-i="0">';
+            h += '<select data-r="t" data-i="0"' + (finalBloqueada ? ' disabled' : '') + '>';
             h += '<option value="">Seleccionar ganador</option>';
             h += '<option value="local"' + (mt[2] === 'local' ? ' selected' : '') + '>' + perdedor1 + '</option>';
             h += '<option value="visitante"' + (mt[2] === 'visitante' ? ' selected' : '') + '>' + perdedor2 + '</option>';
@@ -491,7 +453,6 @@
             h += '</div>';
             ct.innerHTML = h;
             
-            // Event listeners for score inputs
             ct.querySelectorAll('.score-input').forEach(function(inp) {
                 inp.addEventListener('input', function() {
                     var r = this.dataset.r, i = parseInt(this.dataset.i), t = parseInt(this.dataset.t);
@@ -502,7 +463,6 @@
                 });
             });
             
-            // Event listeners for penalty selects
             ct.querySelectorAll('.penal-select select').forEach(function(sel) {
                 sel.addEventListener('change', function() {
                     var r = this.dataset.r, i = parseInt(this.dataset.i);
@@ -524,11 +484,13 @@
             var ct = document.getElementById('bracketPred');
             if (!ct) return;
             var h = '<div class="bracket-container">';
-            h += '<div class="round"><div class="round-title">Cuartos de Final</div>';
-            for (var i = 0; i < 4; i++) {
-                var m = pe[cp].c[i] || ['','',null];
-                var l = cuartosEquipos[i][0], v = cuartosEquipos[i][1];
-                var bloq = (eo.c[i] && eo.c[i][0] !== '' && eo.c[i][1] !== '');
+            
+            // Semifinales
+            h += '<div class="round"><div class="round-title">Semifinales</div>';
+            for (var i = 0; i < 2; i++) {
+                var m = pe[cp].s[i] || ['','',null];
+                var l = semisEquipos[i][0], v = semisEquipos[i][1];
+                var bloq = (eo.s[i] && eo.s[i][0] !== '' && eo.s[i][1] !== '' && (eo.s[i][0] !== eo.s[i][1] || eo.s[i][2]));
                 var bc = bloq ? ' blocked' : '', da = bloq ? ' disabled' : '';
                 h += '<div class="match-card">';
                 h += '<div class="match-teams">';
@@ -537,13 +499,13 @@
                 h += '<div class="team-block left"><span class="team-name">' + v + '</span><img class="team-flag" src="' + gf(v) + '" alt=""></div>';
                 h += '</div>';
                 h += '<div class="score-row">';
-                h += '<input type="number" class="score-input prediccion' + bc + '" min="0" max="99" value="' + m[0] + '" data-r="c" data-i="' + i + '" data-t="0" placeholder="-" ' + da + '>';
+                h += '<input type="number" class="score-input prediccion' + bc + '" min="0" max="99" value="' + m[0] + '" data-r="s" data-i="' + i + '" data-t="0" placeholder="-" ' + da + '>';
                 h += '<span style="color:var(--gold);font-weight:700;">-</span>';
-                h += '<input type="number" class="score-input prediccion' + bc + '" min="0" max="99" value="' + m[1] + '" data-r="c" data-i="' + i + '" data-t="1" placeholder="-" ' + da + '>';
+                h += '<input type="number" class="score-input prediccion' + bc + '" min="0" max="99" value="' + m[1] + '" data-r="s" data-i="' + i + '" data-t="1" placeholder="-" ' + da + '>';
                 h += '</div>';
                 h += '<button class="penal-btn" onclick="togglePenal(this)"' + (bloq ? ' disabled' : '') + '>⚽ Penales</button>';
                 h += '<div class="penal-select">';
-                h += '<select data-r="c" data-i="' + i + '"' + (bloq ? ' disabled' : '') + '>';
+                h += '<select data-r="s" data-i="' + i + '"' + (bloq ? ' disabled' : '') + '>';
                 h += '<option value="">Seleccionar ganador</option>';
                 h += '<option value="local"' + (m[2] === 'local' ? ' selected' : '') + '>' + l + '</option>';
                 h += '<option value="visitante"' + (m[2] === 'visitante' ? ' selected' : '') + '>' + v + '</option>';
@@ -551,14 +513,77 @@
                 h += '</div>';
                 h += '</div>';
             }
+            h += '</div>';
+            
+            // Final y tercer lugar
+            var semisListas = semisCompletas();
+            var s1 = eo.s[0], s2 = eo.s[1];
+            var final1 = '?', final2 = '?', perdedor1 = '?', perdedor2 = '?';
+            if (semisListas) {
+                var g1 = obtenerGanador(s1), g2 = obtenerGanador(s2);
+                final1 = g1 === 'local' ? semisEquipos[0][0] : semisEquipos[0][1];
+                final2 = g2 === 'local' ? semisEquipos[1][0] : semisEquipos[1][1];
+                perdedor1 = g1 === 'local' ? semisEquipos[0][1] : semisEquipos[0][0];
+                perdedor2 = g2 === 'local' ? semisEquipos[1][1] : semisEquipos[1][0];
+            }
+            
+            var finalBloqueada = !semisListas || (eo.f[0] !== '' && eo.f[1] !== '');
+            var tercerBloqueada = !semisListas || (eo.t[0] !== '' && eo.t[1] !== '');
+            
+            h += '<div class="round"><div class="round-title">Final</div>';
+            var mf = pe[cp].f || ['','',null];
+            h += '<div class="match-card">';
+            h += '<div class="match-teams">';
+            h += '<div class="team-block right"><span class="team-name">' + final1 + '</span></div>';
+            h += '<div class="vs-badge">vs</div>';
+            h += '<div class="team-block left"><span class="team-name">' + final2 + '</span></div>';
+            h += '</div>';
+            h += '<div class="score-row">';
+            h += '<input type="number" class="score-input prediccion' + (finalBloqueada ? ' blocked' : '') + '" min="0" max="99" value="' + mf[0] + '" data-r="f" data-i="0" data-t="0" placeholder="-" ' + (finalBloqueada || !semisListas ? ' disabled' : '') + '>';
+            h += '<span style="color:var(--gold);font-weight:700;">-</span>';
+            h += '<input type="number" class="score-input prediccion' + (finalBloqueada ? ' blocked' : '') + '" min="0" max="99" value="' + mf[1] + '" data-r="f" data-i="0" data-t="1" placeholder="-" ' + (finalBloqueada || !semisListas ? ' disabled' : '') + '>';
+            h += '</div>';
+            h += '<button class="penal-btn" onclick="togglePenal(this)"' + (finalBloqueada || !semisListas ? ' disabled' : '') + '>⚽ Penales</button>';
+            h += '<div class="penal-select">';
+            h += '<select data-r="f" data-i="0"' + (finalBloqueada || !semisListas ? ' disabled' : '') + '>';
+            h += '<option value="">Seleccionar ganador</option>';
+            h += '<option value="local"' + (mf[2] === 'local' ? ' selected' : '') + '>' + final1 + '</option>';
+            h += '<option value="visitante"' + (mf[2] === 'visitante' ? ' selected' : '') + '>' + final2 + '</option>';
+            h += '</select>';
+            h += '</div>';
             h += '</div></div>';
+            
+            h += '<div class="round"><div class="round-title">3er Lugar</div>';
+            var mt = pe[cp].t || ['','',null];
+            h += '<div class="match-card">';
+            h += '<div class="match-teams">';
+            h += '<div class="team-block right"><span class="team-name">' + perdedor1 + '</span></div>';
+            h += '<div class="vs-badge">vs</div>';
+            h += '<div class="team-block left"><span class="team-name">' + perdedor2 + '</span></div>';
+            h += '</div>';
+            h += '<div class="score-row">';
+            h += '<input type="number" class="score-input prediccion' + (tercerBloqueada ? ' blocked' : '') + '" min="0" max="99" value="' + mt[0] + '" data-r="t" data-i="0" data-t="0" placeholder="-" ' + (tercerBloqueada || !semisListas ? ' disabled' : '') + '>';
+            h += '<span style="color:var(--gold);font-weight:700;">-</span>';
+            h += '<input type="number" class="score-input prediccion' + (tercerBloqueada ? ' blocked' : '') + '" min="0" max="99" value="' + mt[1] + '" data-r="t" data-i="0" data-t="1" placeholder="-" ' + (tercerBloqueada || !semisListas ? ' disabled' : '') + '>';
+            h += '</div>';
+            h += '<button class="penal-btn" onclick="togglePenal(this)"' + (tercerBloqueada || !semisListas ? ' disabled' : '') + '>⚽ Penales</button>';
+            h += '<div class="penal-select">';
+            h += '<select data-r="t" data-i="0"' + (tercerBloqueada || !semisListas ? ' disabled' : '') + '>';
+            h += '<option value="">Seleccionar ganador</option>';
+            h += '<option value="local"' + (mt[2] === 'local' ? ' selected' : '') + '>' + perdedor1 + '</option>';
+            h += '<option value="visitante"' + (mt[2] === 'visitante' ? ' selected' : '') + '>' + perdedor2 + '</option>';
+            h += '</select>';
+            h += '</div>';
+            h += '</div></div>';
+            
+            h += '</div>';
             ct.innerHTML = h;
             
             ct.querySelectorAll('.score-input').forEach(function(inp) {
                 inp.addEventListener('input', function() {
                     if (this.classList.contains('blocked')) return;
                     var r = this.dataset.r, i = parseInt(this.dataset.i), t = parseInt(this.dataset.t);
-                    var match = pe[cp][r][i];
+                    var match = (r === 'f' || r === 't') ? pe[cp][r] : pe[cp][r][i];
                     match[t] = this.value;
                     spe(cp, r, i);
                     renderRanking();
@@ -569,7 +594,8 @@
                     if (this.disabled) return;
                     var r = this.dataset.r, i = parseInt(this.dataset.i);
                     var val = this.value || null;
-                    pe[cp][r][i][2] = val;
+                    var match = (r === 'f' || r === 't') ? pe[cp][r] : pe[cp][r][i];
+                    match[2] = val;
                     spe(cp, r, i);
                     renderRanking();
                 });
@@ -583,38 +609,7 @@
             var pts = [];
             for (var pi = 0; pi < 5; pi++) {
                 var puntos = rankingBase[pi] || 0;
-                // Cuartos
-                for (var i = 0; i < 4; i++) {
-                    var of = eo.c[i] || ['','',null];
-                    var pr = (pe[pi].c && pe[pi].c[i]) ? pe[pi].c[i] : ['','',null];
-                    var golO = parseInt(of[0]), govO = parseInt(of[1]);
-                    var golP = parseInt(pr[0]), govP = parseInt(pr[1]);
-                    if (isNaN(golO) || isNaN(govO) || isNaN(golP) || isNaN(govP)) continue;
-                    
-                    var winnerO = null, winnerP = null;
-                    if (golO !== govO) {
-                        winnerO = golO > govO ? 'local' : 'visitante';
-                        winnerP = golP > govP ? 'local' : 'visitante';
-                    } else {
-                        // empate oficial: se necesita el penal
-                        winnerO = of[2]; // 'local' o 'visitante' o null
-                        // predicción: si el usuario predijo empate, usar su penal; si no, el ganador por goles
-                        if (golP === govP) {
-                            winnerP = pr[2];
-                        } else {
-                            winnerP = golP > govP ? 'local' : 'visitante';
-                        }
-                    }
-                    
-                    if (winnerO && winnerP) {
-                        if (golP === golO && govP === govO && winnerP === winnerO) {
-                            puntos += 6;
-                        } else if (winnerP === winnerO) {
-                            puntos += 3;
-                        }
-                    }
-                }
-                // Semis (similar logic, but limited to 2 matches)
+                // Semifinales
                 for (var i = 0; i < 2; i++) {
                     var of = eo.s[i] || ['','',null];
                     var pr = (pe[pi].s && pe[pi].s[i]) ? pe[pi].s[i] : ['','',null];
@@ -628,19 +623,12 @@
                         winnerP = golP > govP ? 'local' : 'visitante';
                     } else {
                         winnerO = of[2];
-                        if (golP === govP) {
-                            winnerP = pr[2];
-                        } else {
-                            winnerP = golP > govP ? 'local' : 'visitante';
-                        }
+                        if (golP === govP) { winnerP = pr[2]; } else { winnerP = golP > govP ? 'local' : 'visitante'; }
                     }
                     
                     if (winnerO && winnerP) {
-                        if (golP === golO && govP === govO && winnerP === winnerO) {
-                            puntos += 6;
-                        } else if (winnerP === winnerO) {
-                            puntos += 3;
-                        }
+                        if (golP === golO && govP === govO && winnerP === winnerO) { puntos += 6; }
+                        else if (winnerP === winnerO) { puntos += 3; }
                     }
                 }
                 // Final
@@ -655,22 +643,15 @@
                             winnerP = golP > govP ? 'local' : 'visitante';
                         } else {
                             winnerO = of[2];
-                            if (golP === govP) {
-                                winnerP = pr[2];
-                            } else {
-                                winnerP = golP > govP ? 'local' : 'visitante';
-                            }
+                            if (golP === govP) { winnerP = pr[2]; } else { winnerP = golP > govP ? 'local' : 'visitante'; }
                         }
                         if (winnerO && winnerP) {
-                            if (golP === golO && govP === govO && winnerP === winnerO) {
-                                puntos += 6;
-                            } else if (winnerP === winnerO) {
-                                puntos += 3;
-                            }
+                            if (golP === golO && govP === govO && winnerP === winnerO) { puntos += 6; }
+                            else if (winnerP === winnerO) { puntos += 3; }
                         }
                     }
                 }
-                // Tercer lugar (same logic)
+                // Tercer lugar
                 if (eo.t[0] !== '' && pe[pi].t[0] !== '') {
                     var of = eo.t, pr = pe[pi].t;
                     var golO = parseInt(of[0]), govO = parseInt(of[1]);
@@ -682,18 +663,11 @@
                             winnerP = golP > govP ? 'local' : 'visitante';
                         } else {
                             winnerO = of[2];
-                            if (golP === govP) {
-                                winnerP = pr[2];
-                            } else {
-                                winnerP = golP > govP ? 'local' : 'visitante';
-                            }
+                            if (golP === govP) { winnerP = pr[2]; } else { winnerP = golP > govP ? 'local' : 'visitante'; }
                         }
                         if (winnerO && winnerP) {
-                            if (golP === golO && govP === govO && winnerP === winnerO) {
-                                puntos += 6;
-                            } else if (winnerP === winnerO) {
-                                puntos += 3;
-                            }
+                            if (golP === golO && govP === govO && winnerP === winnerO) { puntos += 6; }
+                            else if (winnerP === winnerO) { puntos += 3; }
                         }
                     }
                 }
@@ -709,13 +683,14 @@
                 var p = pts[i];
                 var posClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
                 var porcentaje = Math.round((p.puntos / maxPts) * 100);
-                h += '<div class="rank-item">';
+                h += '<div class="rank-item" onclick="toggleRankDetails(this)">';
                 h += '<div class="rank-pos ' + posClass + '">' + (i + 1) + '</div>';
                 h += '<div style="flex:1;">';
                 h += '<div class="rank-name" style="color:' + playerColors[p.index] + '">' + p.nombre + '</div>';
                 h += '<div class="rank-bar"><div class="rank-fill" style="width:' + porcentaje + '%;background:' + playerColors[p.index] + '"></div></div>';
                 h += '</div>';
                 h += '<div class="rank-pts" id="pts-' + p.index + '">' + p.puntos + ' pts</div>';
+                h += '<div class="rank-details">🔥 ' + p.nombre + ' suma ' + p.puntos + ' pts totales en toda la quiniela.</div>';
                 h += '</div>';
             }
             ct.innerHTML = h;
@@ -727,9 +702,13 @@
             });
         }
         
+        function toggleRankDetails(item) {
+            item.classList.toggle('expanded');
+        }
+        
         function guardar() {
-            db.ref('eo21').set(eo);
-            db.ref('pe21').set(pe);
+            db.ref('eo22').set(eo);
+            db.ref('pe22').set(pe);
             toast('✅ Cambios guardados en Firebase');
         }
         function cargar() {
